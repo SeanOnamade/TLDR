@@ -40,6 +40,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
+        <h1 className='text-4xl font-semibold text-red-400'>WELCOME</h1>
         <nav>
           {/* Add navigation links */}
           <ul>
