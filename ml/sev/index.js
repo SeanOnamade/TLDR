@@ -1,16 +1,23 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-import axiso from 'axios';
+const axios = require('axios');
+
 
 
 // Server initialization
 const app = express();
-const CONNECT_PORT = 7000;
+const CONNECT_PORT = 7050;
 app.use(cors());
 app.use(bodyParser.json());
-//1 = train, 2 = test, 3 = prod,
-var serverStat = 0;
+//1 = train, 2 = test, 3 = prod, 0 = idle
+const SERVER_STATES = {
+    IDLE: 0,
+    TRAIN: 1,
+    VAL: 2,
+    PROD: 3,
+};
+let serverStat = SERVER_STATES.IDLE;
 
 /**
  * 
@@ -25,8 +32,7 @@ const routeHander = async (formattedNews) =>
     let ENDING_STATUS = 0;
     
     // Data and server validation
-
-    // EXTEND OUT MORE POST DD1
+    //  -> EXTEND OUT MORE POST DD1
     if (typeof formattedNews !== 'string' || formattedNews.trim === '' || serverStat == 0)
     {
             ENDING_STATUS = 2;
@@ -84,4 +90,31 @@ const routeHander = async (formattedNews) =>
  *          TLDR: Takes data and uses it to train model based on cosine similarity in high dimensional space
  * 
 */
+app.post('/preProcess', (req, res) => 
+{
+    console.log("Yes preProcess up");
+    res.json({ message: 'yes train up'});
+});
 
+app.post('/train', (req, res) => 
+{
+    console.log("Yes prod up");
+    res.json({ message: 'yes prod up'});
+});
+
+app.post('/prod', (req, res) => 
+{
+    console.log("Yes prod up");
+    res.json({ message: 'yes prod up'});
+});
+
+app.post('/val', (req, res) => 
+{
+    console.log("Yes val up");
+    res.json({ message: 'yes val up'});
+});
+
+app.listen(CONNECT_PORT, () => 
+{
+    console.log(`Server up on PORT:${CONNECT_PORT}`);
+});
