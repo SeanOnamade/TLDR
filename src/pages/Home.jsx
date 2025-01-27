@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "../components/ui/card";
 import {
   Carousel,
@@ -9,10 +9,31 @@ import {
 } from "../components/ui/carousel";
 
 function Home() {
+  const [isShrunk, setIsShrunk] = useState(false);
+
+  const handleScroll = () => {
+    if (window.scrollY > 40) {
+      setIsShrunk(true);
+    } else {
+      setIsShrunk(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
     <div className="flex-col">
       <header className="text-center">
-        <h1 className="mt-4 mb-8 text-4xl font-black">
+        <h1
+          className={`mt-4 mb-8 text-4xl font-black transition-all duration-300 ease-in-out ${
+            isShrunk ? "opacity-0" : "opacity-100"
+          }`}
+        >
           <span className="text-white">FOCUS.</span>
           <span className="text-[#F51555]">FEED</span>
         </h1>
@@ -56,7 +77,8 @@ function Home() {
             </div>
           </div>
         </section>
-        <div className="font-bold text-white mt-12 -mb-2">TRENDING</div>
+        <div className="font-bold text-white mt-12">TRENDING</div>
+        <div className="h-[2px] w-full bg-[#ffffff7e]"></div>
         <section className="flex justify-center">
           <Carousel
             opts={{
@@ -103,7 +125,8 @@ function Home() {
             <CarouselNext variant={"null"} />
           </Carousel>
         </section>
-        <div className="font-bold text-white mt-8 -mb-2">RECENT</div>
+        <div className="font-bold text-white mt-8">RECENT</div>
+        <div className="h-[2px] w-full bg-[#ffffff7e]"></div>
         <section className="flex justify-center mb-24">
           <Carousel
             opts={{
@@ -156,4 +179,3 @@ function Home() {
 }
 
 export default Home;
-
