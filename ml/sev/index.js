@@ -114,6 +114,12 @@ app.post('/val', (req, res) =>
     res.json({ message: 'yes val up'});
 });
 
+app.post('/filter', (req, res) => 
+{
+    console.log("Yes filer up");
+    res.json({ message: 'yes fiter rup'});
+});
+
 app.listen(CONNECT_PORT, () => 
 {
     console.log(`Server up on PORT:${CONNECT_PORT}`);
