@@ -17,7 +17,11 @@ const sslOptions =
 };
 
 app.use(cors());
+
+// Used for parsing information from the incoming data from the web-scrapper team
 app.use(bodyParser.json());
+
+
 //1 = train, 2 = test, 3 = prod, 0 = idle
 const SERVER_STATES = {
     IDLE: 0,
@@ -115,6 +119,10 @@ app.post('/preProcess', (req, res) => {
  *          -> '-d {}' is telling the server what they are sending in response.body()
  *          
  */
-https.createServer(sslOptions, app).listen(CONNECT_PORT, () => {
-    console.log(`HTTPS server running at https://localhost:${CONNECT_PORT}`)
-})
+if (require.main === module) {
+    https.createServer(sslOptions, app).listen(CONNECT_PORT, () => {
+        console.log(`HTTPS server running at https://localhost:${CONNECT_PORT}`);
+    });
+}
+
+module.exports = app;
