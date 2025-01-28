@@ -50,7 +50,7 @@ Before starting, ensure you have the following installed on your machine:
 To run premade testing, run:
 
 ```bash
-node run dd1_TESTS
+npm run dd1_TESTS
 ```
 
 ----------
