@@ -27,5 +27,8 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
-# Other files
-coverage/
+# Coverage directory
+/coverage/
+
+# Cache directories
+/.cache/
