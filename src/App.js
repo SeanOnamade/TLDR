@@ -75,6 +75,7 @@ import Home from './pages/Home';
 import Preferences from './pages/Preferences';
 import NotFound from './pages/NotFound';
 import About from './pages/About';
+import SEV_TEST_ML from './pages/sev_test_ml';
 
 function App() {
   return (
@@ -90,6 +91,7 @@ function App() {
         <Route path="/preferences" element={<Preferences />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/sev_test_ml" elements={<SEV_TEST_ML />} />
       </Routes>
     </div>
   );
