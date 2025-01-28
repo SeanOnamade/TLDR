@@ -101,11 +101,39 @@ const routeHander = async (formattedNews) =>
  * 
  *          TLDR: Takes data and uses it to train model based on cosine similarity in high dimensional space
  * 
+ * /prod: Route which users will interact with, this is the route that pulls from the frozen graph for model weights
+ *          and is only concerned about providing news articles for users. The information will go into here, each sentence will be extracted from the json.body
+ *          and these will be converted into latent space using pre-trained model, then a clustering algorithm will be used to disect latent space and then the mean of
+ *          cluster will check which sentence vec is closest to it, via cosine similarity, then extract that sentence to be used in prompt engineering
+ * 
+ *          TLDR: ML production route
 */
+
+// /preProcess -> The route that preprocesses the raw text
 app.post('/preProcess', (req, res) => {
     let data = req.body;
     res.json({message: "process up", data});
 })
+
+// /train -> route for training clustering model
+app.post('/train', (req, res) => {
+    let data = req.body
+    res.json({message: "train route receive: ", data})
+})
+
+// /prod -> production server where users will interact
+app.post('/prod', (req, res) => {
+    let data = req.body
+    res.json({message: "train route receive: ", data})
+})
+
+// /filter -> route for filtering incoming data to prevent multi tagging and save space
+app.post('/filter', (req, res) => {
+    let data = req.body
+    res.json({message: "train route receive: ", data})
+})
+
+
 
 /**
  * 
