@@ -2,12 +2,20 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
+const https = require('https');
+require('dotenv').config();
 
 
 
 // Server initialization
 const app = express();
 const CONNECT_PORT = 7050;
+const sslOptions = 
+{
+    key: process.env.SSL_KEY,
+    cert: process.env.SSL_CERT,
+};
+
 app.use(cors());
 app.use(bodyParser.json());
 //1 = train, 2 = test, 3 = prod, 0 = idle
@@ -90,9 +98,23 @@ const routeHander = async (formattedNews) =>
  *          TLDR: Takes data and uses it to train model based on cosine similarity in high dimensional space
  * 
 */
+app.post('/preProcess', (req, res) => {
+    let data = req.body;
+    res.json({message: "process up", data});
+})
 
-
-app.listen(CONNECT_PORT, () => 
-{
-    console.log(`Server up on PORT:${CONNECT_PORT}`);
-});
+/**
+ * 
+ * @define: Instantiation of the HTTPS server for local/hosting instances
+ * 
+ * @return: log back to terminal for local instance to testing
+ * 
+ * NOTE: This server was tested for /preProcesser using
+ *        "curl -k -X https://localhost:7050/preProcess -d {}"
+ *          -> '-k' is necessary because we are self-cerififying for HTTPS
+ *          -> '-d {}' is telling the server what they are sending in response.body()
+ *          
+ */
+https.createServer(sslOptions, app).listen(CONNECT_PORT, () => {
+    console.log(`HTTPS server running at https://localhost:${CONNECT_PORT}`)
+})
