@@ -39,7 +39,7 @@ function App() {
         >
           <nav className="leading-none flex gap-4 items-center w-[calc(100%-1.5rem)] h-full">
             <div
-              className={`flex items-center text-[22px] font-black transition-all duration-300 ease-in-out ${
+              className={`flex items-center text-[22px] font-black transition-all duration-300 ease-in-out pointer-events-none select-none ${
                 isShrunk ? "max-w-full opacity-100" : "max-w-0 opacity-0"
               }`}
             >

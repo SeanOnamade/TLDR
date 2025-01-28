@@ -7,9 +7,13 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../components/ui/carousel";
+import axios from 'axios'
 
 function Home() {
   const [isShrunk, setIsShrunk] = useState(false);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const handleScroll = () => {
     if (window.scrollY > 40) {
@@ -25,6 +29,30 @@ function Home() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  useEffect(() => {
+    axios
+      .get("https://newsapi-r8fr.onrender.com/wired-pick-of-day")
+      .then((response) => {
+        setData(response.data); // Set the fetched data into state
+        setLoading(false); // Set loading to false after data is fetched
+      })
+      .catch((err) => {
+        setError(err); // Set the error if something goes wrong
+        setLoading(false);
+      });
+  }, []); // Empty dependency array ensures this runs only once when the component mounts
+
+  const getStoryName = (link) => {
+    const parts = link.split("/");
+    if (parts[parts.length - 1] === "") {
+      parts.pop(); // Remove the last element if it is empty
+    }
+    const storySlug = parts[parts.length - 1];
+    return storySlug
+      .replace(/-/g, " ") // Replace dashes with spaces
+      .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize the first letter of each word
+  };
 
   return (
     <div className="flex-col">
@@ -48,32 +76,28 @@ function Home() {
               className="object-cover w-[50%] h-full rounded-[10px]"
             />
             <div className="w-full h-full p-4">
-              <h1 className="text-white text-4xl font-bold mb-4">Title</h1>
-              <p className="text-white text-[16px] line-clamp-[10] mb-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce
-                ac auctor nisl. In sed hendrerit metus. Proin malesuada quam id
-                ultrices consectetur. Integer efficitur tristique posuere. Donec
-                turpis tortor, consequat et porttitor quis, porttitor congue
-                purus. Phasellus luctus malesuada fringilla. Nunc purus velit,
-                gravida in leo vitae, facilisis commodo ante. Fusce sit amet
-                tincidunt nulla, sit amet varius ipsum. Nulla sed magna et
-                mauris gravida posuere ut nec neque. Sed consectetur vestibulum
-                elementum. Morbi vitae hendrerit purus. In mollis elit tellus,
-                non fringilla purus dictum convallis. Duis condimentum semper
-                sapien, sed tempus justo aliquam eu. Donec semper gravida
-                tempor. In fermentum lacinia purus, non consectetur quam mollis
-                sed. Sed ullamcorper nisl sed purus pulvinar, eu rhoncus velit
-                condimentum. Curabitur volutpat dolor et libero fringilla
-                dapibus. Sed sed odio tortor. Suspendisse eleifend massa id
-                mauris gravida finibus. Donec venenatis ullamcorper arcu eget
-                ornare. Morbi fermentum molestie risus, a eleifend sapien
-                dignissim at. Nulla feugiat libero eu ipsum pretium, sit amet
-                tempus sem commodo. Ut imperdiet diam eu velit sodales, a
-                volutpat turpis bibendum. Aliquam metus nunc, viverra varius
-                cursus et, porttitor et justo. Nulla iaculis nibh non porttitor
-                tempor.
-              </p>
-              <p className="text-[#F51555] text-[14px]">Read more {">"}</p>
+              <h1 className="text-white text-2xl font-bold mb-4">
+                {data ? getStoryName(data.article_link) : "loading..."}
+              </h1>
+              {loading && <div>Loading...</div>}
+              {error && <div>Error: {error.message}</div>}
+              {data && (
+                <div className="text-white text-[16px] line-clamp-[10] mb-4">
+                  {data.article_text.split("\n").map((line, index) => (
+                    <p key={index} className="mb-2">
+                      {line}
+                    </p> // Create a new paragraph for each line
+                  ))}
+                </div>
+              )}
+              <a
+                href={data ? data.article_link : ""}
+                className="text-[#F51555] text-[14px] font-bold"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Read more {">"}
+              </a>
             </div>
           </div>
         </section>
@@ -112,7 +136,7 @@ function Home() {
                           Nulla sed magna et mauris gravida posuere ut nec
                           neque.
                         </p>
-                        <p className="text-[#F51555] text-[12px] ml-1">
+                        <p className="text-[#F51555] text-[12px] ml-1 font-bold">
                           Read more {">"}
                         </p>
                       </CardContent>
@@ -160,7 +184,7 @@ function Home() {
                           Nulla sed magna et mauris gravida posuere ut nec
                           neque.
                         </p>
-                        <p className="text-[#F51555] text-[12px] ml-1">
+                        <p className="text-[#F51555] text-[12px] ml-1 font-bold">
                           Read more {">"}
                         </p>
                       </CardContent>
