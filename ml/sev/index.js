@@ -90,35 +90,7 @@ const routeHander = async (formattedNews) =>
  *          TLDR: Takes data and uses it to train model based on cosine similarity in high dimensional space
  * 
 */
-app.post('/preProcess', (req, res) => 
-{
-    console.log("Yes preProcess up");
-    res.json({ message: 'yes train up'});
-});
 
-app.post('/train', (req, res) => 
-{
-    console.log("Yes prod up");
-    res.json({ message: 'yes prod up'});
-});
-
-app.post('/prod', (req, res) => 
-{
-    console.log("Yes prod up");
-    res.json({ message: 'yes prod up'});
-});
-
-app.post('/val', (req, res) => 
-{
-    console.log("Yes val up");
-    res.json({ message: 'yes val up'});
-});
-
-app.post('/filter', (req, res) => 
-{
-    console.log("Yes filer up");
-    res.json({ message: 'yes fiter rup'});
-});
 
 app.listen(CONNECT_PORT, () => 
 {
