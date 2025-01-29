@@ -38,4 +38,4 @@ jobs:
 
       # Step 5 -> Run tests
       - name: Run tests
-        run: npm run dd1_TESTS
+        run: BABEL_ENV=test npm run dd1_TESTS -- --config=jest.config.js
