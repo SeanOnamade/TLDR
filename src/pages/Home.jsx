@@ -76,8 +76,8 @@ function Home() {
               className="object-cover w-[50%] h-full rounded-[10px]"
             />
             <div className="w-full h-full p-4">
-              <h1 className="text-white text-2xl font-bold mb-4">
-                {data ? getStoryName(data.article_link) : "loading..."}
+              <h1 className="text-white text-2xl font-bold mb-4 line-clamp-[1]">
+                {data ? getStoryName(data.article_link) : "Loading..."}
               </h1>
               {loading && <div>Loading...</div>}
               {error && <div>Error: {error.message}</div>}
@@ -86,7 +86,7 @@ function Home() {
                   {data.article_text.split("\n").map((line, index) => (
                     <p key={index} className="mb-2">
                       {line}
-                    </p> // Create a new paragraph for each line
+                    </p>
                   ))}
                 </div>
               )}
