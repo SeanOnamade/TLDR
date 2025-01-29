@@ -45,7 +45,7 @@ function Preferences() {
       </header>
 
       <div className="border-b border-gray-900/10 pb-12">
-        <h2 className="text-base/7 font-semibold text-2xl text-white">
+        <h2 className="font-semibold text-2xl text-white">
           Personal Information
         </h2>
         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -142,7 +142,7 @@ function Preferences() {
       </div>
 
       <div className="border-b border-gray-900/10 pb-12">
-        <h2 className="text-base/7 font-semibold text-2xl text-white">
+        <h2 className="font-semibold text-2xl text-white">
           News Preferences
         </h2>
         <div className="mt-10">
