@@ -7,7 +7,7 @@ require('dotenv').config();
 
 
 
-// Server initialization
+// Server initialization [DD1]
 const app = express();
 const CONNECT_PORT = 7050;
 const sslOptions = 
