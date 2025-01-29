@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dd1_TESTS": "jest"
+    "test": "jest"
   },
   "keywords": [],
   "author": "Zander Raycraft",
