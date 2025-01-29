@@ -1,3 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  background-color: #191718;
+}
+
 .App {
   text-align: center;
 }
@@ -21,7 +29,6 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
 }
 
 .App-link {
@@ -34,5 +41,17 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* @import "tailwindcss"; */
+
+.heebo-text {
+  font-family: 'Heebo', sans-serif;
+}
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
   }
 }
