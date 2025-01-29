@@ -32,12 +32,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: check env
-          run: |
-            echo "SSL_KEY: $SSL_KEY"
-            echo "SSL_CERT: $SSL_CERT"
+      # Step 4 -> Check environment variables
+      - name: Check Environment Variables
+        run: |
+          echo "SSL_KEY: $SSL_KEY"
+          echo "SSL_CERT: $SSL_CERT"
 
-      # Step 4 -> Set environment variables from GitHub secrets
+      # Step 5 -> Set environment variables from GitHub secrets
       - name: Set SSL environment variables
         env:
           SSL_KEY: ${{ secrets.SSL_KEY }}
@@ -46,10 +47,10 @@ jobs:
           echo "SSL_KEY=$SSL_KEY" >> $GITHUB_ENV
           echo "SSL_CERT=$SSL_CERT" >> $GITHUB_ENV
 
-      # Step 5: Disable SSL verification (if needed)
+      # Step 6: Disable SSL verification (if needed)
       - name: Disable SSL verification
         run: echo "NODE_TLS_REJECT_UNAUTHORIZED=0" >> $GITHUB_ENV
 
-      # Step 6 -> Run tests
+      # Step 7 -> Run tests
       - name: Run tests
         run: BABEL_ENV=test npm run dd1_TESTS
