@@ -222,7 +222,7 @@ function Home() {
                           <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">
                             {item.data && getStoryName(item.data.article_link)}
                           </h1>
-                          <p className="text-white text-[12px] line-clamp-[5] m-1 mb-0">
+                          <div className="text-white text-[12px] line-clamp-[5] m-1 mb-0">
                             {item.data &&
                               item.data.article_text
                                 .split("\n")
@@ -232,7 +232,7 @@ function Home() {
                                     .replace(/^\d+\.\s*/, "• ");
                                   return <p key={index}>{bulletLine}</p>;
                                 })}
-                          </p>
+                          </div>
                           <a
                             href={item.data ? item.data.article_link : ""}
                             className="text-[#F51555] text-[12px] ml-1 font-bold"
@@ -296,7 +296,7 @@ function Home() {
                           <h1 className="text-white text-[13px] font-bold line-clamp-[1] ml-1">
                             {item.data && getStoryName(item.data.article_link)}
                           </h1>
-                          <p className="text-white text-[12px] line-clamp-[5] m-1 mb-0">
+                          <div className="text-white text-[12px] line-clamp-[5] m-1 mb-0">
                             {item.data &&
                               item.data.article_text
                                 .split("\n")
@@ -306,7 +306,7 @@ function Home() {
                                     .replace(/^\d+\.\s*/, "• ");
                                   return <p key={index}>{bulletLine}</p>;
                                 })}
-                          </p>
+                          </div>
                           <a
                             href={item.data ? item.data.article_link : ""}
                             className="text-[#F51555] text-[12px] ml-1 font-bold"
