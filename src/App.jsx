@@ -28,10 +28,17 @@ function App() {
   }, []);
 
   return (
-    <div className="flex justify-center min-h-screen bg-[#191718] heebo-text">
-      <div className="flex justify-center w-[80%] min-h-screen bg-[#242122] shadow-lg">
+    <div className="flex justify-center min-h-screen bg-[#131112] heebo-text">
+      <div className="flex justify-center w-[80%] min-h-screen bg-[#242122] shadow-lg relative overflow-hidden">
+        <div className="absolute">
+          <img
+            src={"../public/textures/concrete2.jpg"}
+            alt="Grainy Texture"
+            className="w-full h-full object-cover mix-blend-multiply opacity-30"
+          />
+        </div>
         <header
-          className={`flex justify-end fixed w-[75%] h-[50px] rounded-[25px] text-white z-50 transition-all duration-300 ease-in-out ${
+          className={`flex justify-end fixed w-[75%] h-[50px] rounded-[25px] text-white z-50 transition-all duration-300 ease-in-out header-animation ${
             isShrunk
               ? "shadow-none bg-none top-0"
               : "shadow-lg bg-[#FFFFFF1A] top-6"
@@ -79,7 +86,7 @@ function App() {
           </nav>
         </header>
 
-        <main className="w-[100%] pt-24">
+        <main className="w-[100%] pt-24 z-10">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/preferences" element={<Preferences />} />
