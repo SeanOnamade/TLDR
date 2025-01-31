@@ -28,15 +28,15 @@ function App() {
   }, []);
 
   return (
-    <div className="flex justify-center min-h-screen bg-[#131112] heebo-text">
-      <div className="flex justify-center w-[80%] min-h-screen bg-[#242122] shadow-lg relative overflow-hidden">
-        <div className="absolute">
-          <img
-            src={"../public/textures/concrete2.jpg"}
-            alt="Grainy Texture"
-            className="w-full h-full object-cover mix-blend-multiply opacity-30"
-          />
-        </div>
+    <div className="flex justify-center min-h-screen bg-[#181718] heebo-text overflow-hidden relative">
+      <div className="absolute">
+        <img
+          src={"../textures/blackice.jpg"}
+          alt="Grainy Texture"
+          className="w-full h-full object-cover mix-blend-multiply opacity-100"
+        />
+      </div>
+      <div className="flex justify-center w-[80%] min-h-screen bg-[#121111] shadow-2xl shadow-black/100 z-10">
         <header
           className={`flex justify-end fixed w-[75%] h-[50px] rounded-[25px] text-white z-50 transition-all duration-300 ease-in-out header-animation ${
             isShrunk
