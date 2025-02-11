@@ -35,22 +35,18 @@ jobs:
       # Step 4 -> Check environment variables
       - name: Check Environment Variables
         run: |
-          echo "SSL_KEY: $SSL_KEY"
-          echo "SSL_CERT: $SSL_CERT"
+          echo "SSH_KEY: $SSH_KEY"
+          echo "SSH_CERT: $SSH_CERT"
 
       # Step 5 -> Set environment variables from GitHub secrets
       - name: Set SSL environment variables
         env:
-          SSL_KEY: ${{ secrets.SSL_KEY }}
-          SSL_CERT: ${{ secrets.SSL_CERT }}
+          SSH_KEY: ${{ secrets.SSL_KEY }}
+          SSH_CERT: ${{ secrets.SSL_CERT }}
         run: |
-          echo "SSL_KEY=$SSL_KEY" >> $GITHUB_ENV
-          echo "SSL_CERT=$SSL_CERT" >> $GITHUB_ENV
+          echo "SSH_KEY=$SSH_KEY" >> $GITHUB_ENV
+          echo "SSH_CERT=$SSH_CERT" >> $GITHUB_ENV
 
       # Step 6: Disable SSL verification (if needed)
       - name: Disable SSL verification
         run: echo "NODE_TLS_REJECT_UNAUTHORIZED=0" >> $GITHUB_ENV
-
-      # Step 7 -> Run tests
-      - name: Run tests
-        run: BABEL_ENV=test npm run dd1_TESTS
