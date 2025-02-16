@@ -92,8 +92,6 @@ function Home() {
   // This will allow them to load as fast as possible for each
   // And I will also be able to add the fade in on load effect
   useEffect(() => {
-    console.log("here")
-
     Promise.all(
       endpoints.map(({ endpoint }) =>
         axios.get(`https://newsapi-r8fr.onrender.com${endpoint}`)

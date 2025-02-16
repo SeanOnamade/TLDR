@@ -1,16 +1,18 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import React, { useState } from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuTrigger,
-  NavigationMenuLink,
   NavigationMenuList,
-} from "@/components/ui/navigation-menu"
+} from "@/components/ui/navigation-menu";
+
 function Preferences() {
-      const [selectedTopics, setSelectedTopics] = useState([]);
+  const [selectedTopics, setSelectedTopics] = useState([]);
   const [selectedSources, setSelectedSources] = useState([]);
 
   const toggleSelection = (item, setSelection, selection) => {
@@ -20,7 +22,17 @@ function Preferences() {
       setSelection([...selection, item]);
     }
   };
-    const ListItem = React.forwardRef(({ title, isSelected, onClick }, ref) => {
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      // Optionally, you can add any further sign-out logic here such as redirecting the user.
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
+  const ListItem = React.forwardRef(({ title, isSelected, onClick }, ref) => {
     return (
       <button
         ref={ref}
@@ -102,6 +114,7 @@ function Preferences() {
               />
             </div>
           </div>
+
           <div className="sm:col-span-3">
             <label
               htmlFor="password"
@@ -119,6 +132,7 @@ function Preferences() {
               />
             </div>
           </div>
+
           <div className="sm:col-span-3">
             <label
               htmlFor="language"
@@ -149,7 +163,7 @@ function Preferences() {
               <NavigationMenuItem>
                 <NavigationMenuTrigger
                   className="cursor-default"
-                  onClick={() => {
+                  onClick={(e) => {
                     e.preventDefault();
                   }}
                 >
@@ -183,7 +197,7 @@ function Preferences() {
               <NavigationMenuItem>
                 <NavigationMenuTrigger
                   className="cursor-default"
-                  onClick={() => {
+                  onClick={(e) => {
                     e.preventDefault();
                   }}
                 >
@@ -226,35 +240,19 @@ function Preferences() {
           Save
         </button>
       </div>
+
+      {/* Sign Out Button */}
+      <div className="flex items-center justify-center mt-4 pb-12">
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+        >
+          Sign Out
+        </button>
+      </div>
     </div>
   );
 }
-
-// const ListItem = React.forwardRef(({
-//   className,
-//   title,
-//   ...props
-// }, ref) => {
-//   return (
-//       <button className="m-1 px-4 py-2 rounded-full border bg-gray-200 text-gray-700 hover:bg-[#F51555] hover:text-white transition-colors duration-200">
-//         {title}
-//       </button>
-//     // <li>
-//     //   <NavigationMenuLink asChild>
-//     //     <a
-//     //       ref={ref}
-//     //       className={cn(
-//     //         "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-//     //         className
-//     //       )}
-//     //       {...props}
-//     //     >
-//     //       <div className="text-sm font-medium leading-none">{title}</div>
-//     //     </a>
-//     //   </NavigationMenuLink>
-//     // </li>
-//   )
-// })
-// ListItem.displayName = "ListItem"
 
 export default Preferences;
