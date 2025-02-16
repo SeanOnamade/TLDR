@@ -37,173 +37,83 @@ function Preferences() {
   });
 
   return (
-    <div className="flex-col px-[50px] space-y-12">
+    <div className="flex flex-col px-12 space-y-12 text-white">
       <header className="text-left">
-        <h1 className="mt-4 mb-8 text-4xl font-black text-white">
-          Preferences
-        </h1>
+        <h1 className="mt-4 mb-8 text-4xl font-black">Preferences</h1>
       </header>
 
-      <div className="border-b border-gray-900/10 pb-12">
-        <h2 className="font-semibold text-2xl text-white">
-          Personal Information
-        </h2>
-        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-          <div className="sm:col-span-3">
-            <label
-              htmlFor="first-name"
-              className="block text-sm/6 font-medium text-white"
-            >
-              First name
-            </label>
-            <div className="mt-2">
+      <section className="border-b border-gray-700 pb-12">
+        <h2 className="text-2xl font-semibold">Personal Information</h2>
+        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          {[
+            { label: "First Name", id: "first-name", type: "text" },
+            { label: "Last Name", id: "last-name", type: "text" },
+            { label: "Email Address", id: "email", type: "email" },
+            { label: "Password", id: "password", type: "password" },
+          ].map(({ label, id, type }) => (
+            <div key={id}>
+              <label htmlFor={id} className="block text-sm font-medium">
+                {label}
+              </label>
               <input
-                id="first-name"
-                name="first-name"
-                type="text"
-                autoComplete="given-name"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                id={id}
+                name={id}
+                type={type}
+                className="mt-2 w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-[#F51555]"
               />
             </div>
-          </div>
+          ))}
 
-          <div className="sm:col-span-3">
-            <label
-              htmlFor="last-name"
-              className="block text-sm/6 font-medium text-white"
-            >
-              Last name
-            </label>
-            <div className="mt-2">
-              <input
-                id="last-name"
-                name="last-name"
-                type="text"
-                autoComplete="family-name"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              />
-            </div>
-          </div>
-
-          <div className="sm:col-span-4">
-            <label
-              htmlFor="email"
-              className="block text-sm/6 font-medium text-white"
-            >
-              Email address
-            </label>
-            <div className="mt-2">
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              />
-            </div>
-          </div>
-          <div className="sm:col-span-4">
-            <label
-              htmlFor="password"
-              className="block text-sm/6 font-medium text-white"
-            >
-              Password
-            </label>
-            <div className="mt-2">
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="password"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              />
-            </div>
-          </div>
-          <div className="sm:col-span-3">
-            <label
-              htmlFor="language"
-              className="block text-sm/6 font-medium text-white"
-            >
+          <div>
+            <label htmlFor="language" className="block text-sm font-medium">
               Language
             </label>
-            <div className="mt-2 grid grid-cols-1">
-              <select
-                id="language"
-                name="language"
-                className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              >
-                <option>English</option>
-                <option>Spanish</option>
-                <option>Mandarin</option>
-              </select>
-            </div>
+            <select
+              id="language"
+              name="language"
+              className="mt-2 w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline outline-1 outline-gray-300 focus:outline-2 focus:outline-[#F51555]"
+            >
+              <option>English</option>
+              <option>Spanish</option>
+              <option>Mandarin</option>
+            </select>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="border-b border-gray-900/10 pb-12">
-        <h2 className="font-semibold text-2xl text-white">
-          News Preferences
-        </h2>
-        <div className="mt-10">
-          <NavigationMenu>
-            <NavigationMenuList className="grid grid-cols-2 gap-x-6 w-full">
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>Topics</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="gap-3 p-6 md:w-[400px] lg:w-[500px] flex-wrap">
-                    {[
-                      "Business",
-                      "Tech",
-                      "Fashion",
-                      "World",
-                      "Entertainment",
-                    ].map((topic) => (
-                      <ListItem
-                        key={topic}
-                        title={topic}
-                        isSelected={selectedTopics.includes(topic)}
-                        onClick={() =>
-                          toggleSelection(
-                            topic,
-                            setSelectedTopics,
-                            selectedTopics
-                          )
-                        }
-                      />
-                    ))}
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>News Sources</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="gap-3 p-6 md:w-[400px] lg:w-[500px] flex-wrap">
-                    {["CNN", "Fox", "Forbes", "Yahoo", "SCMP", "NYT"].map(
-                      (source) => (
-                        <ListItem
-                          key={source}
-                          title={source}
-                          isSelected={selectedSources.includes(source)}
-                          onClick={() =>
-                            toggleSelection(
-                              source,
-                              setSelectedSources,
-                              selectedSources
-                            )
-                          }
-                        />
-                      )
-                    )}
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+      {/* <section className="border-b pb-12"> */}
+      <section className="pb-12">
+        <h2 className="text-2xl font-semibold">News Preferences</h2>
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-8">
+          {[{
+            title: "Topics",
+            options: ["Business", "Tech", "Fashion", "World", "Entertainment"],
+            selected: selectedTopics,
+            setSelected: setSelectedTopics,
+          }, {
+            title: "News Sources",
+            options: ["CNN", "Fox", "Forbes", "Yahoo", "SCMP", "NYT"],
+            selected: selectedSources,
+            setSelected: setSelectedSources,
+          }].map(({ title, options, selected, setSelected }) => (
+            <div key={title} className="bg-[#1a1a1a] p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-4 text-[#F51555]">{title}</h3>
+              <div className="flex flex-wrap gap-2">
+                {options.map((item) => (
+                  <ListItem
+                    key={item}
+                    title={item}
+                    isSelected={selected.includes(item)}
+                    onClick={() => toggleSelection(item, setSelected, selected)}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
+      </section>
 
-      <div className="mt-6 flex items-center justify-end gap-x-6 pb-12">
+      <div className="!mt-0 flex items-center justify-end gap-x-6 pb-4">
         <button type="button" className="text-sm/6 font-semibold text-white">
           Cancel
         </button>

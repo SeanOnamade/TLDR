@@ -9,6 +9,19 @@ import Preferences from './pages/Preferences';
 import NotFound from './pages/NotFound';
 import About from './pages/About';
 
+function Footer() {
+  return (
+    <footer className="bg-[#1a1a1a] text-gray-300 text-center py-4 mt-8 border-t border-[#F51555]">
+      <p>&copy; {new Date().getFullYear()} Focus Feed. All rights reserved.</p>
+      <div className="flex justify-center gap-4 mt-2">
+        <Link to="/" className="hover:text-[#F51555] transition-colors duration-300">Home</Link>
+        <Link to="/about" className="hover:text-[#F51555] transition-colors duration-300">About</Link>
+        <Link to="/preferences" className="hover:text-[#F51555] transition-colors duration-300">Preferences</Link>
+      </div>
+    </footer>
+  );
+}
+
 function App() {
   const [isShrunk, setIsShrunk] = useState(false);
 
@@ -28,8 +41,8 @@ function App() {
   }, []);
 
   return (
-    <div className="flex justify-center min-h-screen bg-[#131112] heebo-text">
-      <div className="flex justify-center w-[80%] min-h-screen bg-[#242122] shadow-lg relative overflow-hidden">
+    <div className="flex flex-col justify-between min-h-screen bg-[#131112] heebo-text">
+      <div className="flex justify-center w-[80%] mx-auto bg-[#242122] shadow-lg relative overflow-hidden">
         <div className="absolute">
           <img
             src={"../public/textures/concrete2.jpg"}
@@ -95,6 +108,7 @@ function App() {
           </Routes>
         </main>
       </div>
+      <Footer />
     </div>
   );
 }

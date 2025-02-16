@@ -128,7 +128,7 @@ function Home() {
         <section className="h-[390px] bg-[#FFFFFF1A] rounded-[15px] shadow-lg mb-5">
           <div className="flex w-full h-full p-1.5">
             <img
-              src="../../public/images/image.png"
+              src="../../images/image.png"
               alt="placeholder"
               className="object-cover w-[50%] h-full rounded-[10px]"
             />
@@ -148,7 +148,7 @@ function Home() {
                 }`}
               >
                 <h1 className="text-white text-2xl font-bold mb-4 line-clamp-[1]">
-                  {data && getStoryName(data.article_link)}
+                  {data && data.article_title}
                 </h1>
                 <div className="text-white text-[16px] line-clamp-[10] mb-4">
                   {data &&
@@ -209,7 +209,7 @@ function Home() {
                 dataArray.map((item, index) => (
                   <CarouselItem
                     key={index}
-                    className="sm:basis-1/3 md:basis-1/4 lg:basis-1/5"
+                    className="sm:basis-1/3 md:basis-1/3 lg:basis-1/4"
                   >
                     <div className="w-full py-4">
                       <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
@@ -220,7 +220,7 @@ function Home() {
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
                           <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">
-                            {item.data && getStoryName(item.data.article_link)}
+                            {item.data && item.data.article_title}
                           </h1>
                           <div className="text-white text-[12px] line-clamp-[5] m-1 mb-0">
                             {item.data &&
@@ -294,7 +294,7 @@ function Home() {
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
                           <h1 className="text-white text-[13px] font-bold line-clamp-[1] ml-1">
-                            {item.data && getStoryName(item.data.article_link)}
+                            {item.data && item.data.article_title}
                           </h1>
                           <div className="text-white text-[12px] line-clamp-[5] m-1 mb-0">
                             {item.data &&
