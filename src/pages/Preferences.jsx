@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import React, { useState } from "react";
 
 import {
@@ -8,9 +8,9 @@ import {
   NavigationMenuTrigger,
   NavigationMenuLink,
   NavigationMenuList,
-} from "@/components/ui/navigation-menu"
+} from "@/components/ui/navigation-menu";
 function Preferences() {
-      const [selectedTopics, setSelectedTopics] = useState([]);
+  const [selectedTopics, setSelectedTopics] = useState([]);
   const [selectedSources, setSelectedSources] = useState([]);
 
   const toggleSelection = (item, setSelection, selection) => {
@@ -20,15 +20,15 @@ function Preferences() {
       setSelection([...selection, item]);
     }
   };
-    const ListItem = React.forwardRef(({ title, isSelected, onClick }, ref) => {
+  const ListItem = React.forwardRef(({ title, isSelected, onClick }, ref) => {
     return (
       <button
         ref={ref}
         onClick={onClick}
-        className={`m-1 px-4 py-2 rounded-full border transition-colors duration-200 ${
+        className={`m-1 text-sm px-4 py-1 rounded-full border transition-all duration-200 ${
           isSelected
-            ? "bg-[#F51555] text-white"
-            : "bg-gray-200 text-gray-700 hover:bg-[#F51555] hover:text-white"
+            ? "bg-[#F51555] text-white hover:bg-[#e7284e] active:bg-gray-200 active:text-black"
+            : "bg-gray-200 text-black hover:bg-gray-300 active:bg-[#F51555] active:text-white"
         }`}
       >
         {title}
@@ -38,9 +38,9 @@ function Preferences() {
 
   return (
     <div className="flex-col px-[50px] space-y-12">
-      <header className="text-left">
+      <header className="text-center">
         <h1 className="mt-4 mb-8 text-4xl font-black text-white">
-          Preferences
+          PREFERENCES
         </h1>
       </header>
 
@@ -85,7 +85,7 @@ function Preferences() {
             </div>
           </div>
 
-          <div className="sm:col-span-4">
+          <div className="sm:col-span-3">
             <label
               htmlFor="email"
               className="block text-sm/6 font-medium text-white"
@@ -102,7 +102,7 @@ function Preferences() {
               />
             </div>
           </div>
-          <div className="sm:col-span-4">
+          <div className="sm:col-span-3">
             <label
               htmlFor="password"
               className="block text-sm/6 font-medium text-white"
@@ -142,16 +142,21 @@ function Preferences() {
       </div>
 
       <div className="border-b border-gray-900/10 pb-12">
-        <h2 className="font-semibold text-2xl text-white">
-          News Preferences
-        </h2>
+        <h2 className="font-semibold text-2xl text-white">News Preferences</h2>
         <div className="mt-10">
           <NavigationMenu>
-            <NavigationMenuList className="grid grid-cols-2 gap-x-6 w-full">
+            <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Topics</NavigationMenuTrigger>
+                <NavigationMenuTrigger
+                  className="cursor-default"
+                  onClick={() => {
+                    e.preventDefault();
+                  }}
+                >
+                  Topics
+                </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="gap-3 p-6 md:w-[400px] lg:w-[500px] flex-wrap">
+                  <ul className="gap-3 p-1 md:w-[400px] lg:w-[500px] flex-wrap">
                     {[
                       "Business",
                       "Tech",
@@ -176,9 +181,16 @@ function Preferences() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>News Sources</NavigationMenuTrigger>
+                <NavigationMenuTrigger
+                  className="cursor-default"
+                  onClick={() => {
+                    e.preventDefault();
+                  }}
+                >
+                  News Sources
+                </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="gap-3 p-6 md:w-[400px] lg:w-[500px] flex-wrap">
+                  <ul className="gap-3 p-1 md:w-[400px] lg:w-[500px] flex-wrap">
                     {["CNN", "Fox", "Forbes", "Yahoo", "SCMP", "NYT"].map(
                       (source) => (
                         <ListItem
@@ -217,32 +229,5 @@ function Preferences() {
     </div>
   );
 }
-
-// const ListItem = React.forwardRef(({
-//   className,
-//   title,
-//   ...props
-// }, ref) => {
-//   return (
-//       <button className="m-1 px-4 py-2 rounded-full border bg-gray-200 text-gray-700 hover:bg-[#F51555] hover:text-white transition-colors duration-200">
-//         {title}
-//       </button>
-//     // <li>
-//     //   <NavigationMenuLink asChild>
-//     //     <a
-//     //       ref={ref}
-//     //       className={cn(
-//     //         "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-//     //         className
-//     //       )}
-//     //       {...props}
-//     //     >
-//     //       <div className="text-sm font-medium leading-none">{title}</div>
-//     //     </a>
-//     //   </NavigationMenuLink>
-//     // </li>
-//   )
-// })
-// ListItem.displayName = "ListItem"
 
 export default Preferences;
