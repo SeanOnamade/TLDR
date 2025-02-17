@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+
+
 
 
 import {
@@ -20,6 +23,10 @@ function Preferences() {
   const [language, setLanguage] = useState("");
   const [topics, setTopics] = useState([]);
   const [sources, setSources] = useState([]);
+  const [newPassword, setNewPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+
+
   const user = auth.currentUser; // Get authenticated user
   const [initialValues, setInitialValues] = useState({
   firstName: "",
@@ -83,9 +90,8 @@ function Preferences() {
       </button>
     );
   });
-    const handleSave = async () => {
-    if (!user) return; // Ensure user is authenticated
-
+const handleSave = async () => {
+  if (user) {
     try {
       const userRef = doc(db, "users", user.uid);
       await setDoc(userRef, {
@@ -94,14 +100,37 @@ function Preferences() {
         language,
         topics,
         sources,
-      }, { merge: true }); // Use merge to update only specific fields
+      }, { merge: true });
 
-      alert("Preferences saved successfully!");
+      // Only update password if a new one was entered
+      if (newPassword) {
+        if (!currentPassword) {
+          alert("Please enter your current password to update.");
+          return;
+        }
+
+        // Reauthenticate the user before updating password
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        await reauthenticateWithCredential(user, credential);
+
+        // Now update the password
+        await updatePassword(user, newPassword);
+        alert("Password updated successfully.");
+      }
+
+      alert("Preferences saved!");
     } catch (error) {
-      console.error("Error saving preferences:", error);
-      alert("Failed to save preferences.");
+      if (error.code === "auth/wrong-password") {
+        alert("Incorrect current password. Please try again.");
+      } else if (error.code === "auth/too-many-requests") {
+        alert("Too many failed attempts. Please try again later.");
+      } else {
+        console.error("Error updating preferences:", error);
+        alert("Failed to update preferences.");
+      }
     }
-  };
+  }
+};
 
   return (
     <div className="flex-col px-[50px] space-y-12">
@@ -176,23 +205,6 @@ function Preferences() {
             </div>
           </div>
 
-          <div className="sm:col-span-3">
-            <label
-              htmlFor="password"
-              className="block text-sm/6 font-medium text-white"
-            >
-              Password
-            </label>
-            <div className="mt-2">
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="password"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              />
-            </div>
-          </div>
 
           <div className="sm:col-span-3">
             <label
@@ -215,7 +227,88 @@ function Preferences() {
               </select>
             </div>
           </div>
-        </div>
+          {/* Change Password Section */}
+<div className="col-span-full">
+  <h2 className="text-white text-2xl font-semibold mb-4">Change Password</h2>
+
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-8">
+    <div className="sm:col-span-3">
+      <label htmlFor="current-password" className="block text-sm font-medium text-white">
+        Current Password
+      </label>
+      <div className="mt-2">
+        <input
+          id="current-password"
+          type="password"
+          placeholder="Enter current password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900"
+        />
+      </div>
+    </div>
+
+    <div className="sm:col-span-3">
+      <label htmlFor="password" className="block text-sm font-medium text-white">
+        New Password
+      </label>
+      <div className="mt-2">
+        <input
+          id="password"
+          name="password"
+          type="password"
+          placeholder="Enter new password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{/*           <h2 className="text-white">Change Password</h2>*/}
+
+
+{/*                            <div className="sm:col-span-3">*/}
+{/*  <label htmlFor="current-password" className="block text-sm font-medium text-white">*/}
+{/*    Current Password*/}
+{/*  </label>*/}
+{/*  <div className="mt-2">*/}
+{/*    <input*/}
+{/*      id="current-password"*/}
+{/*      type="password"*/}
+{/*      placeholder="Enter current password"*/}
+{/*      value={currentPassword}*/}
+{/*      onChange={(e) => setCurrentPassword(e.target.value)}*/}
+{/*      className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900"*/}
+{/*    />*/}
+{/*  </div>*/}
+{/*</div>*/}
+
+{/*        <div className="sm:col-span-3">*/}
+{/*            <label*/}
+{/*              htmlFor="password"*/}
+{/*              className="block text-sm/6 font-medium text-white"*/}
+{/*            >*/}
+{/*              New Password*/}
+{/*            </label>*/}
+{/*            <div className="mt-2">*/}
+{/*              <input*/}
+{/*                id="password"*/}
+{/*                name="password"*/}
+{/*                type="password"*/}
+{/*                placeholder="Enter new password"*/}
+{/*                value={newPassword}*/}
+{/*                onChange={(e) => setNewPassword(e.target.value)}*/}
+{/*                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"*/}
+{/*              />*/}
+{/*            </div>*/}
+{/*        </div>*/}
+
+
+          </div>
       </div>
 
       <div className="border-b border-gray-900/10 pb-12">
