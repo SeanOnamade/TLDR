@@ -23,15 +23,6 @@ function Preferences() {
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      // Optionally, you can add any further sign-out logic here such as redirecting the user.
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
-
   const ListItem = React.forwardRef(({ title, isSelected, onClick }, ref) => {
     return (
       <button
@@ -238,17 +229,6 @@ function Preferences() {
           className="rounded-md bg-[#F51555] px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[#f74f7f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
           Save
-        </button>
-      </div>
-
-      {/* Sign Out Button */}
-      <div className="flex items-center justify-center mt-4 pb-12">
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-        >
-          Sign Out
         </button>
       </div>
     </div>

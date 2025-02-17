@@ -20,7 +20,6 @@ const SignIn = () => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // On successful sign-in, navigate to the main app (home page in this case)
       navigate("/");
     } catch (err) {
       console.error("SignIn error:", err);
@@ -29,7 +28,11 @@ const SignIn = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex flex-col items-center justify-center min-h-screen mt-[-6rem]">
+      <h1 className="mt-4 mb-8 text-4xl font-black">
+        <span className="text-white">FOCUS.</span>
+        <span className="text-[#F51555]">FEED</span>
+      </h1>
       <div className="w-full max-w-md p-8 space-y-4 bg-white rounded shadow">
         <h1 className="text-2xl font-bold text-center">Sign In</h1>
         {error && <p className="text-red-500 text-center">{error}</p>}
@@ -60,7 +63,7 @@ const SignIn = () => {
         </form>
         <p className="text-center">
           Don't have an account?{" "}
-          <Link to="/auth/signup" className="text-blue-500">
+          <Link to="/auth/signup" className="text-[#F51555]">
             Sign Up
           </Link>
         </p>

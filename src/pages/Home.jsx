@@ -77,17 +77,6 @@ function Home() {
       });
   }, []); // Empty dependency array ensures this runs only once when the component mounts
 
-  const getStoryName = (link) => {
-    const parts = link.split("/");
-    if (parts[parts.length - 1] === "") {
-      parts.pop(); // Remove the last element if it is empty
-    }
-    const storySlug = parts[parts.length - 1];
-    return storySlug
-      .replace(/-/g, " ") // Replace dashes with spaces
-      .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize the first letter of each word
-  };
-
   // TODO: Get these to load in indivdually instead of all at once
   // This will allow them to load as fast as possible for each
   // And I will also be able to add the fade in on load effect
@@ -251,7 +240,7 @@ function Home() {
         </section>
         <div className="font-bold text-white mt-8">RECENT</div>
         <div className="h-[2px] w-full bg-[#ffffff7e]"></div>
-        <section className="flex justify-center mb-24">
+        <section className="flex justify-center">
           <Carousel
             opts={{
               align: "start",
@@ -281,7 +270,7 @@ function Home() {
                 dataArray.map((item, index) => (
                   <CarouselItem
                     key={index}
-                    className="sm:basis-1/3 md:basis-1/4 lg:basis-1/5"
+                    className="sm:basis-1/3 md:basis-1/3 lg:basis-1/4"
                   >
                     <div className="w-full py-4">
                       <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
@@ -291,7 +280,7 @@ function Home() {
                             alt={`Image ${index + 1}`}
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
-                          <h1 className="text-white text-[13px] font-bold line-clamp-[1] ml-1">
+                          <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">
                             {item.data && item.data.article_title}
                           </h1>
                           <div className="text-white text-[12px] line-clamp-[5] m-1 mb-0">

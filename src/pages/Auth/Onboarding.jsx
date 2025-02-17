@@ -54,14 +54,15 @@ const Onboarding = () => {
       );
       // After onboarding, navigate to the main app route (or wherever you wish)
       navigate("/");
+      window.location.reload();
     } catch (error) {
       console.error("Error saving onboarding preferences:", error);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <h1 className="text-3xl font-bold mb-6">Onboarding</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen mt-[-6rem]">
+      <h1 className="text-3xl font-bold mb-6 text-white">Onboarding</h1>
       <div className="w-full max-w-md bg-white p-6 rounded shadow">
         <h2 className="text-xl font-semibold mb-4">
           Select Your Topic Preferences
