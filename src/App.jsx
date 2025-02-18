@@ -118,7 +118,7 @@ function App() {
       {!loading && (
         <div className="fade-in-content flex flex-col justify-between bg-[#131112] heebo-text">
           <div className="flex justify-center w-[80%] mx-auto bg-[#242122] shadow-lg relative overflow-hidden">
-            <div className="absolute">
+            <div className="absolute inset-0">
               <img
                 src={"../public/textures/concrete2.jpg"}
                 alt="Grainy Texture"

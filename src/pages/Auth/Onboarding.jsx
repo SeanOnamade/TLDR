@@ -2,10 +2,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase"; // Make sure db is exported
-
-const topicsOptions = ["Business", "Tech", "Fashion", "World", "Entertainment"];
-const sourcesOptions = ["CNN", "Fox", "Forbes", "Yahoo", "SCMP", "NYT"];
+import { auth, db } from "@/lib/firebase";
+import { topicsOptions, sourceOptions } from "@/constants/preferences";
 
 const ListItem = React.forwardRef(({ title, isSelected, onClick }, ref) => (
   <button
@@ -28,10 +26,19 @@ const Onboarding = () => {
   const navigate = useNavigate();
 
   const toggleSelection = (item, selection, setSelection) => {
-    if (selection.includes(item)) {
-      setSelection(selection.filter((i) => i !== item));
+    // topics are simple strings; sources are objects
+    if (typeof item === "string") {
+      if (selection.includes(item)) {
+        setSelection(selection.filter((i) => i !== item));
+      } else {
+        setSelection([...selection, item]);
+      }
     } else {
-      setSelection([...selection, item]);
+      if (selection.some((i) => i.endpoint === item.endpoint)) {
+        setSelection(selection.filter((i) => i.endpoint !== item.endpoint));
+      } else {
+        setSelection([...selection, item]);
+      }
     }
   };
 
@@ -42,7 +49,6 @@ const Onboarding = () => {
       return;
     }
     try {
-      // Save the preferences along with an onboarded flag
       await setDoc(
         doc(db, "users", currentUser.uid),
         {
@@ -52,7 +58,6 @@ const Onboarding = () => {
         },
         { merge: true }
       );
-      // After onboarding, navigate to the main app route (or wherever you wish)
       navigate("/");
       window.location.reload();
     } catch (error) {
@@ -84,11 +89,13 @@ const Onboarding = () => {
           Select Your News Source Preferences
         </h2>
         <div className="flex flex-wrap">
-          {sourcesOptions.map((source) => (
+          {sourceOptions.map((source) => (
             <ListItem
-              key={source}
-              title={source}
-              isSelected={selectedSources.includes(source)}
+              key={source.endpoint}
+              title={source.name}
+              isSelected={selectedSources.some(
+                (s) => s.endpoint === source.endpoint
+              )}
               onClick={() =>
                 toggleSelection(source, selectedSources, setSelectedSources)
               }
