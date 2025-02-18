@@ -120,7 +120,7 @@ function App() {
           <div className="flex justify-center w-[80%] mx-auto bg-[#242122] shadow-lg relative overflow-hidden">
             <div className="absolute inset-0">
               <img
-                src={"../public/textures/concrete2.jpg"}
+                src={"../textures/concrete2.jpg"}
                 alt="Grainy Texture"
                 className="w-full h-full object-cover mix-blend-multiply opacity-30"
               />
