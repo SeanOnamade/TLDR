@@ -19,13 +19,13 @@ function Home() {
   const [error, setError] = useState(null);
   const [dataArray, setDataArray] = useState([]);
   const [endpoints, setEndpoints] = useState([]);
+  // New state for topics and grouped data
+  const [userTopics, setUserTopics] = useState([]);
+  const [groupedData, setGroupedData] = useState([]);
+  const [loadingTopics, setLoadingTopics] = useState(false);
 
   const handleScroll = () => {
-    if (window.scrollY > 40) {
-      setIsShrunk(true);
-    } else {
-      setIsShrunk(false);
-    }
+    setIsShrunk(window.scrollY > 40);
   };
 
   useEffect(() => {
@@ -33,7 +33,7 @@ function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Fetch a primary article (wired-pick-of-day)
+  // Fetch primary article
   useEffect(() => {
     axios
       .get("https://newsapi-r8fr.onrender.com/wired-pick-of-day")
@@ -47,24 +47,25 @@ function Home() {
       });
   }, []);
 
-  // Fetch the user's preferred sources from Firebase
+  // Fetch user's preferred sources and topics from Firebase
   useEffect(() => {
-    const fetchSources = async () => {
+    const fetchUserPreferences = async () => {
       try {
         const userDocRef = doc(db, "users", auth.currentUser.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const userData = userDoc.data();
           setEndpoints(userData.sources || []);
+          setUserTopics(userData.topics || []);
         }
       } catch (error) {
-        console.error("Error fetching user sources:", error);
+        console.error("Error fetching user preferences:", error);
       }
     };
-    fetchSources();
+    fetchUserPreferences();
   }, []);
 
-  // Once endpoints are loaded, fetch each source's data
+  // Fetch individual source data once endpoints are loaded
   useEffect(() => {
     if (endpoints.length > 0) {
       Promise.all(
@@ -85,6 +86,74 @@ function Home() {
     }
   }, [endpoints]);
 
+  // Helper function to determine source image from article link
+  const getSourceImage = (articleLink) => {
+    try {
+      const url = new URL(articleLink);
+      const hostname = url.hostname.toLowerCase();
+      if (hostname.includes("yahoo") && hostname.includes("finance"))
+        return "YahooFinance.webp";
+      if (hostname.includes("economist")) return "Economist.webp";
+      if (hostname.includes("forbes")) return "Forbes.webp";
+      if (hostname.includes("investopedia")) return "Investopedia.webp";
+      if (hostname.includes("rollingstone")) return "RollingStone.webp";
+      if (hostname.includes("apnews")) return "AP.webp";
+      if (hostname.includes("vogue")) return "Vogue.webp";
+      if (hostname.includes("people")) return "People.webp";
+      if (hostname.includes("democracynow")) return "DemocracyNow.webp";
+      if (hostname.includes("scmp") && hostname.includes("china"))
+        return "SCMPTopStory.webp";
+      if (hostname.includes("scmp")) return "SCMP.webp";
+      if (hostname.includes("cosmo")) return "Cosmo.webp";
+      if (hostname.includes("techcrunch")) return "TechCrunch.webp";
+      if (hostname.includes("zdnet")) return "ZDNet.webp";
+      if (hostname.includes("sports.yahoo")) return "YahooSports.webp";
+      if (
+        hostname.includes("weather.com") ||
+        hostname.includes("weatherchannel")
+      )
+        return "WeatherChannel.webp";
+      if (
+        hostname.includes("wired.com")
+      )
+        return "Wired.webp";
+      if (hostname.includes("weather.gov")) return "WeatherGov.webp";
+      if (hostname.includes("techreport")) return "TechReport.webp";
+      if (hostname.includes("infoq")) return "InfoQ.webp";
+      if (hostname.includes("bbc")) return "BBC.webp";
+      if (hostname.includes("npr")) return "NPR.webp";
+      if (hostname.includes("japantimes")) return "JapanTimes.webp";
+    } catch (e) {
+      console.error("Error parsing URL", e);
+    }
+    return "default.webp"; // fallback image if no match
+  };
+
+  // Fetch grouped news for each user-selected topic
+  useEffect(() => {
+    if (userTopics.length > 0) {
+      setLoadingTopics(true);
+      Promise.all(
+        userTopics.map((topic) => {
+          const endpoint = `/${topic.toLowerCase()}-news`;
+          return axios
+            .get(`https://newsapi-r8fr.onrender.com${endpoint}`)
+            .then((response) => ({ topic, articles: response.data }))
+            .catch((err) => {
+              console.error(`Error fetching ${topic} news:`, err);
+              return { topic, articles: [] };
+            });
+        })
+      )
+        .then((responses) => {
+          setGroupedData(responses);
+        })
+        .finally(() => {
+          setLoadingTopics(false);
+        });
+    }
+  }, [userTopics]);
+
   return (
     <div className="flex-col">
       <header className="text-center">
@@ -99,6 +168,7 @@ function Home() {
       </header>
 
       <main className="flex-col justify-center px-[50px]">
+        {/* Primary Article Section */}
         <section className="h-auto md:h-[390px] bg-[#FFFFFF1A] rounded-[15px] shadow-lg mb-5">
           <div className="flex flex-col md:flex-row w-full h-full p-1.5">
             <img
@@ -151,15 +221,12 @@ function Home() {
             </div>
           </div>
         </section>
+
+        {/* Trending Section using individual sources */}
         <div className="font-bold text-white mt-12">TRENDING</div>
         <div className="h-[2px] w-full bg-[#ffffff7e]"></div>
         <section className="flex justify-center">
-          <Carousel
-            opts={{
-              align: "start",
-            }}
-            className="w-full"
-          >
+          <Carousel opts={{ align: "start" }} className="w-full">
             <CarouselContent>
               {dataArray.length === 0 &&
                 Array.from({ length: endpoints.length }).map((_, index) => (
@@ -226,81 +293,85 @@ function Home() {
             <CarouselNext variant={"null"} />
           </Carousel>
         </section>
-        <div className="font-bold text-white mt-8">RECENT</div>
-        <div className="h-[2px] w-full bg-[#ffffff7e]"></div>
-        <section className="flex justify-center">
-          <Carousel
-            opts={{
-              align: "start",
-            }}
-            className="w-full"
-          >
-            <CarouselContent>
-              {dataArray.length === 0 &&
-                Array.from({ length: endpoints.length }).map((_, index) => (
-                  <CarouselItem
-                    key={index}
-                    className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
-                  >
-                    <div className="w-full py-4">
-                      <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
-                        <CardContent className="flex-column h-full items-center justify-center p-1.5">
-                          <Skeleton className="h-[50%] w-full mb-2 rounded-[10px]" />
-                          <Skeleton className="h-[30px] w-full mb-1" />
-                          <Skeleton className="h-[70px] w-full mb-2" />
-                          <Skeleton className="h-[10px] w-20" />
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </CarouselItem>
-                ))}
-              {dataArray.length > 0 &&
-                dataArray.map((item, index) => (
-                  <CarouselItem
-                    key={index}
-                    className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
-                  >
-                    <div className="w-full py-4">
-                      <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
-                        <CardContent className="flex-column h-full items-center justify-center p-1.5">
-                          <img
-                            src={`../../home_images/${item.endpoint.image}`}
-                            alt={item.endpoint.image}
-                            className="object-cover w-full h-[50%] rounded-[10px] mb-2"
-                          />
-                          <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">
-                            {item.data && item.data.article_title}
-                          </h1>
-                          <div className="text-white text-[12px] line-clamp-[5] m-1 mb-0">
-                            {item.data?.article_text
-                              ? item.data.article_text
+
+        {/* Grouped Topics Section using user-selected topics */}
+        {groupedData.map((group, index) => (
+          <div key={index}>
+            <div className="font-bold text-white mt-8">{group.topic.toUpperCase()}</div>
+            <div className="h-[2px] w-full bg-[#ffffff7e]"></div>
+            <section className="flex justify-center">
+              <Carousel opts={{ align: "start" }} className="w-full">
+                <CarouselContent>
+                  {loadingTopics ? (
+                    Array.from({ length: 4 }).map((_, idx) => (
+                      <CarouselItem
+                        key={idx}
+                        className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+                      >
+                        <div className="w-full py-4">
+                          <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
+                            <CardContent className="flex-column h-full items-center justify-center p-1.5">
+                              <Skeleton className="h-[50%] w-full mb-2 rounded-[10px]" />
+                              <Skeleton className="h-[30px] w-full mb-1" />
+                              <Skeleton className="h-[70px] w-full mb-2" />
+                              <Skeleton className="h-[10px] w-20" />
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </CarouselItem>
+                    ))
+                  ) : group.articles && group.articles.length > 0 ? (
+                    group.articles.map((article, idx) => (
+                      <CarouselItem
+                        key={idx}
+                        className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+                      >
+                        <div className="w-full py-4">
+                          <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
+                            <CardContent className="flex-column h-full items-center justify-center p-1.5">
+                              <img
+                                src={`../../home_images/${getSourceImage(
+                                  article.article_link
+                                )}`}
+                                alt={getSourceImage(article.article_link)}
+                                className="object-cover w-full h-[50%] rounded-[10px] mb-2"
+                              />
+                              <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">
+                                {article.article_title}
+                              </h1>
+                              <div className="text-white text-[12px] line-clamp-[5] m-1 mb-0">
+                                {article.article_text
                                   .split("\n")
-                                  .map((line, index) => {
+                                  .map((line, i) => {
                                     const bulletLine = line
                                       .replace(/\*/g, "")
                                       .replace(/^\d+\.\s*/, "• ");
-                                    return <p key={index}>{bulletLine}</p>;
-                                  })
-                              : `${item.endpoint.name} failed to fetch.`}
-                          </div>
-                          <a
-                            href={item.data ? item.data.article_link : ""}
-                            className="text-[#F51555] text-[12px] ml-1 font-bold"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Read more {">"}
-                          </a>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </CarouselItem>
-                ))}
-            </CarouselContent>
-            <CarouselPrevious variant={"null"} />
-            <CarouselNext variant={"null"} />
-          </Carousel>
-        </section>
+                                    return <p key={i}>{bulletLine}</p>;
+                                  })}
+                              </div>
+                              <a
+                                href={article.article_link}
+                                className="text-[#F51555] text-[12px] ml-1 font-bold"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Read more {">"}
+                              </a>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </CarouselItem>
+                    ))
+                  ) : (
+                    <p className="text-white">No articles found.</p>
+                  )}
+                </CarouselContent>
+                <CarouselPrevious variant={"null"} />
+                <CarouselNext variant={"null"} />
+              </Carousel>
+            </section>
+          </div>
+        ))}
       </main>
     </div>
   );
