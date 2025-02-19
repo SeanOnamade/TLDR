@@ -1,0 +1,13 @@
+{
+    "tailwindCSS.includeLanguages": {
+    "html": "html",
+    "javascript": "javascript",
+    "css": "css"
+    },
+    "editor.quickSuggestions": {
+        "strings": true
+    },
+    "git.ignoreLimitWarning": true,
+    "editor.inlineSuggest.enabled": true,
+    "css.validate": false,
+}
