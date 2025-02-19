@@ -88,6 +88,8 @@ if __name__ == "__main__":
                     Ultimately, an expertly timed pit stop and unwavering control propelled the challenger to a stunning victory,
                     ushering in a new era in the fierce battle for the Formula 1 championship."""
 
+
+    # testing
     embeddings = preprocessor.vector_embedding(f1_story)
     embeddings2 = preProcessor2.vector_embedding(f1_story_alt)
     print(f"Number of sentences embedded: {len(embeddings)}")
