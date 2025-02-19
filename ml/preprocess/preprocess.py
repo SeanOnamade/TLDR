@@ -1,6 +1,15 @@
+# export PATH="/opt/miniconda3/envs/focus_feed/bin:$PATH"
+
 import requests
 import nltk
+import os
+local_punkt_path = os.path.join(os.path.dirname(__file__), 'punkt')
+if local_punkt_path not in nltk.data.path:
+    nltk.data.path.insert(0, local_punkt_path)
 from nltk.tokenize import sent_tokenize
+from nltk.tokenize import sent_tokenize
+from sentence_transformers import SentenceTransformer
+import numpy as np
 
 class preProcessor:
     '''
@@ -11,8 +20,10 @@ class preProcessor:
                 the unecessary words. Once the data is cleaned then this class will take each of the sentences and create a vector
                 representation of that sentence and add it to the vector space we are using for future clustering algorithms.
     '''
-    def __init__():
-        return
+    def __init__(self):
+        self.transformer = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+        self.vec_space = []
+    
     
     '''
         @breif: This function calls out to the webscraping API and brings in data which is used as input for the 
@@ -39,9 +50,27 @@ class preProcessor:
         @breif: This is the function that embbeds the sentence into a vector and adds it to the vector space. This is done
                 using sBERT, which that is essentially a pretrained model for embedding sentences in vectors
     '''
-    def vector_embedding():
-        return
+    def vector_embedding(self, text: str) -> np.array:
+        print('inside here')
+        BREAK_UP_SENTENCE = sent_tokenize(text)
+        EMBEDDINGS = self.transformer.encode(BREAK_UP_SENTENCE)
+        self.vec_space.extend(EMBEDDINGS)
+        return EMBEDDINGS
+
     
-    
-    
-    print("hello")
+# Example usage
+if __name__ == "__main__":
+    #print(nltk.data.path)
+    preprocessor = preProcessor()
+    f1_story = """On a bright Sunday morning at the legendary Silverstone Circuit, the roar of engines
+                    echoed across the grandstands. The red-liveried Ferrari led the formation lap, closely followed
+                    by the reigning champion in his silver Mercedes. As the lights went out, the cars surged forward,
+                    tires screeching. A daring overtake at Copse Corner brought the crowd to its feet. In the end,
+                    a well-timed pit stop and steady driving secured a thrilling victory for the challenger, marking
+                    a new chapter in the fierce battle for the Formula 1 championship title."""
+
+    embeddings = preprocessor.vector_embedding(f1_story)
+    print(f"Number of sentences embedded: {len(embeddings)}")
+    print(f"Size of each vector: {embeddings[0].shape}")
+    print(f"Total vectors in vector space: {len(preprocessor.vec_space)}")
+    print(f"\n{np.stack(preprocessor.vec_space[:10])}")
