@@ -1,0 +1,52 @@
+name: Demo Day 1 ML Sev Testing
+
+on:
+  push:
+    branches:
+      - zander
+      - main
+  pull_request:
+    branches:
+      - main
+      - zander
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+
+    steps:
+      # Step 1 -> Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2 -> Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      # Step 3 -> Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4 -> Check environment variables
+      - name: Check Environment Variables
+        run: |
+          echo "SSH_KEY: $SSH_KEY"
+          echo "SSH_CERT: $SSH_CERT"
+
+      # Step 5 -> Set environment variables from GitHub secrets
+      - name: Set SSL environment variables
+        env:
+          SSH_KEY: ${{ secrets.SSL_KEY }}
+          SSH_CERT: ${{ secrets.SSL_CERT }}
+        run: |
+          echo "SSH_KEY=$SSH_KEY" >> $GITHUB_ENV
+          echo "SSH_CERT=$SSH_CERT" >> $GITHUB_ENV
+
+      # Step 6: Disable SSL verification (if needed)
+      - name: Disable SSL verification
+        run: echo "NODE_TLS_REJECT_UNAUTHORIZED=0" >> $GITHUB_ENV

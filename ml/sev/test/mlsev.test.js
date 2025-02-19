@@ -4,7 +4,7 @@
  * - supertest: for automated HTTP requests to test endpoints
  * - https: to simulate an HTTPS server
  * - fs: for reading SSL certificates
- * - app: the server instance exported from index.js
+ * - app: the server instance exported from index.js ---
  */
 const TEST_REQUESTS = require('supertest');
 const https = require('https');
