@@ -102,8 +102,8 @@ function Home() {
         <section className="h-auto md:h-[390px] bg-[#FFFFFF1A] rounded-[15px] shadow-lg mb-5">
           <div className="flex flex-col md:flex-row w-full h-full p-1.5">
             <img
-              src="../../images/image.png"
-              alt="placeholder"
+              src="../../home_images/Wired.webp"
+              alt="Wired"
               className="object-cover w-full md:w-[50%] h-full rounded-[10px]"
             />
             <div className="w-full h-full p-4">
@@ -190,7 +190,7 @@ function Home() {
                         <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <img
                             src={`../../home_images/${item.endpoint.image}`}
-                            alt={`Image ${index + 1}`}
+                            alt={item.endpoint.image}
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
                           <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">
@@ -265,7 +265,7 @@ function Home() {
                         <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <img
                             src={`../../home_images/${item.endpoint.image}`}
-                            alt={`Image ${index + 1}`}
+                            alt={item.endpoint.image}
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
                           <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">
