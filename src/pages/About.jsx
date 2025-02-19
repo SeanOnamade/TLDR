@@ -2,10 +2,9 @@ import React from 'react';
 
 function About() {
   return (
-    <div className="min-h-screen text-white p-8">
-      {/* <div className="max-w-4xl mx-auto mx-auto bg-[#1a1a1a] shadow-xl rounded-2xl p-8"> */}
-      <div className="max-w-4xl mx-auto mx-auto rounded-2xl p-8">
-        <h1 className="text-4xl font-bold text-center text-[#F51555] mb-6">About Us</h1>
+    <div className="min-h-screen text-white p-4">
+      <div className="max-w-4xl mx-auto rounded-2xl">
+        <h1 className="text-4xl font-black text-center text-white mb-6">ABOUT US</h1>
         
         <section className="mb-6">
           <h2 className="text-2xl font-semibold text-[#F51555]">Our Mission</h2>

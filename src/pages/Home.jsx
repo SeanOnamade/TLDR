@@ -8,7 +8,9 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../components/ui/carousel";
-import axios from 'axios'
+import axios from "axios";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 function Home() {
   const [isShrunk, setIsShrunk] = useState(false);
@@ -16,38 +18,7 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dataArray, setDataArray] = useState([]);
-  const endpoints = [
-    {
-      endpoint: "/economist-pick-of-day",
-      image: "image1.webp",
-    },
-    { endpoint: "/AP-pick-of-day", image: "image2.webp" },
-    { endpoint: "/vogue-pick-of-day", image: "image3.webp" },
-    {
-      endpoint: "/rolling-stone-movies-tv-pick-of-day",
-      image: "image4.webp",
-    },
-    { endpoint: "/people-pick-of-day", image: "image5.webp" },
-    { endpoint: "/democracy-now-pick-of-day", image: "image6.webp" },
-    // { endpoint: "/weather-news", image: "image7.webp" },
-    // { endpoint: "/SCMP-pick-of-day", image: "image8.webp" },
-    // { endpoint: "/SCMP-china-top-story", image: "image9.webp" },
-    // { endpoint: "/cosmo-style-pick-of-day", image: "image10.webp" },
-    // { endpoint: "/world-news", image: "image11.webp" },
-    // { endpoint: "/techcrunch-pick-of-day", image: "image12.webp" },
-    // { endpoint: "/zdnet-pick-of-day", image: "image13.webp" },
-    // { endpoint: "/yahoo-sports", image: "image14.webp" },
-    // { endpoint: "/weather-channel-pick-of-day", image: "image15.webp" },
-    // { endpoint: "/weather-gov-pick-of-day", image: "image16.webp" },
-    // { endpoint: "/yahoo-sports-recap", image: "image17.webp" },
-    // { endpoint: "/yahoo-finance-pick-of-day", image: "image18.webp" },
-    // { endpoint: "", image: "image19.webp" },
-    // { endpoint: "/forbes-pick-of-day", image: "image20.webp" },
-    // { endpoint: "/finance-news", image: "image21.webp" },
-    // { endpoint: "/fashion-news", image: "image22.webp" },
-    // { endpoint: "/tech-news", image: "image23.webp" },
-    // { endpoint: "/entertainment-news", image: "image24.webp" },
-  ];
+  const [endpoints, setEndpoints] = useState([]);
 
   const handleScroll = () => {
     if (window.scrollY > 40) {
@@ -59,57 +30,60 @@ function Home() {
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Fetch a primary article (wired-pick-of-day)
   useEffect(() => {
     axios
       .get("https://newsapi-r8fr.onrender.com/wired-pick-of-day")
       .then((response) => {
-        setData(response.data); // Set the fetched data into state
-        setLoading(false); // Set loading to false after data is fetched
+        setData(response.data);
+        setLoading(false);
       })
       .catch((err) => {
-        setError(err); // Set the error if something goes wrong
+        setError(err);
         setLoading(false);
       });
-  }, []); // Empty dependency array ensures this runs only once when the component mounts
-
-  const getStoryName = (link) => {
-    const parts = link.split("/");
-    if (parts[parts.length - 1] === "") {
-      parts.pop(); // Remove the last element if it is empty
-    }
-    const storySlug = parts[parts.length - 1];
-    return storySlug
-      .replace(/-/g, " ") // Replace dashes with spaces
-      .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize the first letter of each word
-  };
-
-  // TODO: Get these to load in indivdually instead of all at once
-  // This will allow them to load as fast as possible for each
-  // And I will also be able to add the fade in on load effect
-  useEffect(() => {
-    console.log("here")
-
-    Promise.all(
-      endpoints.map(({ endpoint }) =>
-        axios.get(`https://newsapi-r8fr.onrender.com${endpoint}`)
-      )
-    )
-      .then((responses) => {
-        const combinedData = responses.map((response, index) => ({
-          data: response.data, // The response data
-          image: endpoints[index].image, // Corresponding image
-        }));
-        setDataArray(combinedData); // Store combined data
-      })
-      .catch((err) => {
-        console.error(err); // Handle errors
-      });
   }, []);
+
+  // Fetch the user's preferred sources from Firebase
+  useEffect(() => {
+    const fetchSources = async () => {
+      try {
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setEndpoints(userData.sources || []);
+        }
+      } catch (error) {
+        console.error("Error fetching user sources:", error);
+      }
+    };
+    fetchSources();
+  }, []);
+
+  // Once endpoints are loaded, fetch each source's data
+  useEffect(() => {
+    if (endpoints.length > 0) {
+      Promise.all(
+        endpoints.map(({ endpoint }) =>
+          axios.get(`https://newsapi-r8fr.onrender.com${endpoint}`)
+        )
+      )
+        .then((responses) => {
+          const combinedData = responses.map((response, index) => ({
+            data: response.data,
+            endpoint: endpoints[index],
+          }));
+          setDataArray(combinedData);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  }, [endpoints]);
 
   return (
     <div className="flex-col">
@@ -125,12 +99,12 @@ function Home() {
       </header>
 
       <main className="flex-col justify-center px-[50px]">
-        <section className="h-[390px] bg-[#FFFFFF1A] rounded-[15px] shadow-lg mb-5">
-          <div className="flex w-full h-full p-1.5">
+        <section className="h-auto md:h-[390px] bg-[#FFFFFF1A] rounded-[15px] shadow-lg mb-5">
+          <div className="flex flex-col md:flex-row w-full h-full p-1.5">
             <img
               src="../../images/image.png"
               alt="placeholder"
-              className="object-cover w-[50%] h-full rounded-[10px]"
+              className="object-cover w-full md:w-[50%] h-full rounded-[10px]"
             />
             <div className="w-full h-full p-4">
               {loading && (
@@ -191,11 +165,11 @@ function Home() {
                 Array.from({ length: endpoints.length }).map((_, index) => (
                   <CarouselItem
                     key={index}
-                    className="sm:basis-1/3 md:basis-1/4 lg:basis-1/5"
+                    className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                   >
                     <div className="w-full py-4">
                       <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
-                        <CardContent className="flex-column h-full items-center justify-center p-1.5 ">
+                        <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <Skeleton className="h-[50%] w-full mb-2 rounded-[10px]" />
                           <Skeleton className="h-[30px] w-full mb-1" />
                           <Skeleton className="h-[70px] w-full mb-2" />
@@ -209,13 +183,13 @@ function Home() {
                 dataArray.map((item, index) => (
                   <CarouselItem
                     key={index}
-                    className="sm:basis-1/3 md:basis-1/3 lg:basis-1/4"
+                    className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                   >
                     <div className="w-full py-4">
                       <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
                         <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <img
-                            src={`../../home_images/${item.image}`}
+                            src={`../../home_images/${item.endpoint.image}`}
                             alt={`Image ${index + 1}`}
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
@@ -223,15 +197,16 @@ function Home() {
                             {item.data && item.data.article_title}
                           </h1>
                           <div className="text-white text-[12px] line-clamp-[5] m-1 mb-0">
-                            {item.data &&
-                              item.data.article_text
-                                .split("\n")
-                                .map((line, index) => {
-                                  const bulletLine = line
-                                    .replace(/\*/g, "")
-                                    .replace(/^\d+\.\s*/, "• ");
-                                  return <p key={index}>{bulletLine}</p>;
-                                })}
+                            {item.data?.article_text
+                              ? item.data.article_text
+                                  .split("\n")
+                                  .map((line, index) => {
+                                    const bulletLine = line
+                                      .replace(/\*/g, "")
+                                      .replace(/^\d+\.\s*/, "• ");
+                                    return <p key={index}>{bulletLine}</p>;
+                                  })
+                              : `${item.endpoint.name} failed to fetch.`}
                           </div>
                           <a
                             href={item.data ? item.data.article_link : ""}
@@ -253,7 +228,7 @@ function Home() {
         </section>
         <div className="font-bold text-white mt-8">RECENT</div>
         <div className="h-[2px] w-full bg-[#ffffff7e]"></div>
-        <section className="flex justify-center mb-24">
+        <section className="flex justify-center">
           <Carousel
             opts={{
               align: "start",
@@ -265,11 +240,11 @@ function Home() {
                 Array.from({ length: endpoints.length }).map((_, index) => (
                   <CarouselItem
                     key={index}
-                    className="sm:basis-1/3 md:basis-1/4 lg:basis-1/5"
+                    className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                   >
                     <div className="w-full py-4">
                       <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
-                        <CardContent className="flex-column h-full items-center justify-center p-1.5 ">
+                        <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <Skeleton className="h-[50%] w-full mb-2 rounded-[10px]" />
                           <Skeleton className="h-[30px] w-full mb-1" />
                           <Skeleton className="h-[70px] w-full mb-2" />
@@ -283,29 +258,30 @@ function Home() {
                 dataArray.map((item, index) => (
                   <CarouselItem
                     key={index}
-                    className="sm:basis-1/3 md:basis-1/4 lg:basis-1/5"
+                    className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                   >
                     <div className="w-full py-4">
                       <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
                         <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <img
-                            src={`../../home_images/${item.image}`}
+                            src={`../../home_images/${item.endpoint.image}`}
                             alt={`Image ${index + 1}`}
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
-                          <h1 className="text-white text-[13px] font-bold line-clamp-[1] ml-1">
+                          <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">
                             {item.data && item.data.article_title}
                           </h1>
                           <div className="text-white text-[12px] line-clamp-[5] m-1 mb-0">
-                            {item.data &&
-                              item.data.article_text
-                                .split("\n")
-                                .map((line, index) => {
-                                  const bulletLine = line
-                                    .replace(/\*/g, "")
-                                    .replace(/^\d+\.\s*/, "• ");
-                                  return <p key={index}>{bulletLine}</p>;
-                                })}
+                            {item.data?.article_text
+                              ? item.data.article_text
+                                  .split("\n")
+                                  .map((line, index) => {
+                                    const bulletLine = line
+                                      .replace(/\*/g, "")
+                                      .replace(/^\d+\.\s*/, "• ");
+                                    return <p key={index}>{bulletLine}</p>;
+                                  })
+                              : `${item.endpoint.name} failed to fetch.`}
                           </div>
                           <a
                             href={item.data ? item.data.article_link : ""}

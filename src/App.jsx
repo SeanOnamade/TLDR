@@ -1,123 +1,178 @@
-import React, { useEffect, useState } from "react";
-import { Routes, Route, Link } from 'react-router-dom';
-import './App.css';
-import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
-import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
+import React, { useEffect, useState, memo } from "react";
+import { Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
+import "./App.css";
 
-import Home from './pages/Home';
-import Preferences from './pages/Preferences';
-import NotFound from './pages/NotFound';
-import About from './pages/About';
+// Import pages
+import Home from "./pages/Home";
+import Preferences from "./pages/Preferences";
+import About from "./pages/About";
+import NotFound from "./pages/NotFound";
 
-function Footer() {
-  return (
-    <footer className="bg-[#1a1a1a] text-gray-300 text-center py-4 mt-8 border-t border-[#F51555]">
-      <p>&copy; {new Date().getFullYear()} Focus Feed. All rights reserved.</p>
-      <div className="flex justify-center gap-4 mt-2">
-        <Link to="/" className="hover:text-[#F51555] transition-colors duration-300">Home</Link>
-        <Link to="/about" className="hover:text-[#F51555] transition-colors duration-300">About</Link>
-        <Link to="/preferences" className="hover:text-[#F51555] transition-colors duration-300">Preferences</Link>
-      </div>
-    </footer>
-  );
-}
+// Auth pages
+import SignIn from "./pages/Auth/SignIn";
+import SignUp from "./pages/Auth/SignUp";
+import Onboarding from "./pages/Auth/Onboarding";
+
+// Firebase
+import { auth, db } from "./lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
+
+// Loader
+import { Grid } from "@agney/react-loading";
+
+// Import memoized Header and Footer components
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 function App() {
-  const [isShrunk, setIsShrunk] = useState(false);
+  const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
-  const handleScroll = () => {
-    if (window.scrollY > 40) {
-      setIsShrunk(true);
-    } else {
-      setIsShrunk(false);
-    }
-  };
-
+  // Listen for auth state changes.
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      // When auth state changes, show loader.
+      setLoading(true);
+      console.log("Current user:", currentUser);
+      setUser(currentUser);
+      if (currentUser) {
+        try {
+          const docRef = doc(db, "users", currentUser.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            console.log("Initial user document data:", docSnap.data());
+            setUserData(docSnap.data());
+          } else {
+            console.log("No user document found.");
+            setUserData(null);
+          }
+        } catch (error) {
+          console.error("Error fetching user document:", error);
+          setUserData(null);
+        }
+      } else {
+        setUserData(null);
+      }
+      // When done, remove loader.
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
+  // Listen for real-time updates to the user's document.
+  useEffect(() => {
+    if (!user) {
+      setUserData(null);
+      return;
+    }
+    const unsub = onSnapshot(
+      doc(db, "users", user.uid),
+      (docSnap) => {
+        if (docSnap.exists()) {
+          console.log("Realtime user document data:", docSnap.data());
+          setUserData(docSnap.data());
+        } else {
+          console.log("No user document found in real-time listener.");
+          setUserData(null);
+        }
+      },
+      (error) => {
+        console.error("Error listening to user document:", error);
+        setUserData(null);
+      }
+    );
+    return () => unsub();
+  }, [user]);
+
+  // PrivateRoute ensures the user is authenticated and onboarded.
+  const PrivateRoute = ({ children }) => {
+    if (loading) return null; // Show nothing until auth state is resolved.
+    if (!user) {
+      console.log("PrivateRoute: No user found, redirecting to /auth/signin");
+      return <Navigate to="/auth/signin" replace />;
+    }
+    if (!userData || !userData.onboarded) {
+      console.log("PrivateRoute: User not onboarded, redirecting to /onboarding");
+      if (location.pathname !== "/onboarding") {
+        return <Navigate to="/onboarding" replace />;
+      }
+    }
+    return children;
+  };
+
+  // Render the loader overlay while loading.
   return (
-    <div className="flex flex-col justify-between min-h-screen bg-[#131112] heebo-text">
-      <div className="flex justify-center w-[80%] mx-auto bg-[#242122] shadow-lg relative overflow-hidden">
-        <div className="absolute">
-          <img
-            src={"../public/textures/concrete2.jpg"}
-            alt="Grainy Texture"
-            className="w-full h-full object-cover mix-blend-multiply opacity-30"
-          />
-        </div>
-        <header
-          className={`flex justify-end fixed w-[75%] h-[50px] rounded-[25px] text-white z-50 transition-all duration-300 ease-in-out header-animation ${
-            isShrunk ? "shadow-none bg-none top-0" : "shadow-lg bg-[#FFFFFF1A] top-6"
-          }`}
+    <div className="relative min-h-screen">
+      {loading && (
+        <div
+          className="fixed inset-0 flex justify-center items-center z-50 bg-[#131112]"
+          style={{ transition: "opacity 200ms" }}
         >
-          <nav className="leading-none flex gap-4 items-center w-[calc(100%-1.5rem)] h-full">
-            <div
-              className={`flex items-center text-[22px] font-black transition-all duration-300 ease-in-out pointer-events-none select-none ${
-                isShrunk ? "max-w-full opacity-100" : "max-w-0 opacity-0"
-              }`}
-            >
-              <span>FOCUS.</span>
-              <span className="text-[#F51555]">FEED</span>
+          <Grid width="40" color="#F51555" />
+        </div>
+      )}
+
+      {!loading && (
+        <div className="fade-in-content flex flex-col justify-between bg-[#131112] heebo-text">
+          <div className="flex justify-center w-[80%] mx-auto bg-[#242122] shadow-lg relative overflow-hidden">
+            <div className="absolute inset-0">
+              <img
+                src={"../textures/concrete2.jpg"}
+                alt="Grainy Texture"
+                className="w-full h-full object-cover mix-blend-multiply opacity-30"
+              />
             </div>
-            <div
-              className={`w-[2px] bg-white transition-all duration-300 ease-in-out ${
-                isShrunk ? "h-6" : "h-0"
-              }`}
-            ></div>
-            <div
-              className={`flex grow justify-between items-center transition-all duration-300 ease-in-out ${
-                isShrunk ? "ml-0" : "-ml-8"
-              }`}
-            >
-              <div className="flex gap-3 font-bold text-lg">
-                <Link to="/">HOME</Link>
-                <Link to="/about">ABOUT</Link>
-              </div>
-              <div className="flex items-center relative group">
-                <LightModeRoundedIcon sx={{ height: 24, width: 24 }} />
-
-                {/* Profile icon with dropdown */}
-                <div className="relative group">
-                  <AccountCircleRoundedIcon
-                    sx={{ height: 46, width: 46, marginLeft: 1, marginRight: "2px" }}
-                    className="cursor-pointer"
-                  />
-                  <div className="absolute right-0 mt-2 w-40 rounded-md bg-white text-black shadow-lg border border-gray-200 opacity-0 group-hover:opacity-100 transition-all duration-200 z-50">
-                    <Link to="/login">
-                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100">
-                        Login
-                      </button>
-                    </Link>
-                    <Link to="/preferences">
-                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100 border-t border-gray-200">
-                        Preferences
-                      </button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </nav>
-        </header>
-
-
-
-
-        <main className="w-[100%] pt-24 z-10">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/preferences" element={<Preferences />} />
-            <Route path="/about" element={<About />} />
-            <Route path="*" element={<NotFound />} /> {/* Catch-all for 404 */}
-          </Routes>
-        </main>
-      </div>
-      <Footer />
+            {/* Render the header */}
+            <Header />
+            <main className="w-[100%] pt-24 z-10">
+              <Routes>
+                {/* Auth and onboarding routes (public) */}
+                <Route path="/auth/signin" element={<SignIn />} />
+                <Route path="/auth/signup" element={<SignUp />} />
+                <Route
+                  path="/onboarding"
+                  element={
+                    <PrivateRoute>
+                      <Onboarding />
+                    </PrivateRoute>
+                  }
+                />
+                {/* Private routes */}
+                <Route
+                  path="/"
+                  element={
+                    <PrivateRoute>
+                      <Home />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/preferences"
+                  element={
+                    <PrivateRoute>
+                      <Preferences />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/about"
+                  element={
+                    <PrivateRoute>
+                      <About />
+                    </PrivateRoute>
+                  }
+                />
+                {/* Catch-all for unknown routes */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+          </div>
+          <Footer />
+        </div>
+      )}
     </div>
   );
 }
