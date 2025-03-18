@@ -53,8 +53,9 @@ class preProcessor:
     def vector_embedding(self, text: str) -> np.array:
         BREAK_UP_SENTENCE = sent_tokenize(text)
         EMBEDDINGS = self.transformer.encode(BREAK_UP_SENTENCE)
-        self.vec_space.extend(EMBEDDINGS)
+        self.vec_space.append(EMBEDDINGS)
         return EMBEDDINGS
+    
     
     def cosine_similarity(self, embeddings2):
         import numpy as np
@@ -63,13 +64,16 @@ class preProcessor:
         for i in range(n):
             v1 = self.vec_space[i]
             v2 = embeddings2[i]
-            sim = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
-            similarities.append(sim)
+            num_sentences = min(v1.shape[0], v2.shape[0])
+            for j in range(num_sentences):
+                sentence_v1 = v1[j]
+                sentence_v2 = v2[j]
+                sim = np.dot(sentence_v1, sentence_v2) / (np.linalg.norm(sentence_v1) * np.linalg.norm(sentence_v2))
+                similarities.append(sim)
         return np.array(similarities)
 
 
     
-# Example usage
 if __name__ == "__main__":
     #print(nltk.data.path)
     preprocessor = preProcessor()
@@ -89,9 +93,15 @@ if __name__ == "__main__":
                     ushering in a new era in the fierce battle for the Formula 1 championship."""
 
 
+    preprocessor.vector_embedding(f1_story)
+    preprocessor.vector_embedding(f1_story_alt)
+
+    print(preprocessor.vec_space)
     # testing
     embeddings = preprocessor.vector_embedding(f1_story)
     embeddings2 = preProcessor2.vector_embedding(f1_story_alt)
+    
+    print(preprocessor)
     print(f"Number of sentences embedded: {len(embeddings)}")
     print(f"Size of each vector: {embeddings[0].shape}")
     print(f"Total vectors in vector space: {len(preprocessor.vec_space)}")

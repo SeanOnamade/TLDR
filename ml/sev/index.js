@@ -104,7 +104,6 @@ const routeHander = async (formattedNews) =>
  * 
  *          TLDR: Takes data and uses it to train model based on cosine similarity in high dimensional space
  * 
-<<<<<<< HEAD
  * /prod: Route which users will interact with, this is the route that pulls from the frozen graph for model weights
  *          and is only concerned about providing news articles for users. The information will go into here, each sentence will be extracted from the json.body
  *          and these will be converted into latent space using pre-trained model, then a clustering algorithm will be used to disect latent space and then the mean of
