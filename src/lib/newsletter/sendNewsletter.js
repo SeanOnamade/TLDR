@@ -7,23 +7,6 @@ const FocusFeedNewsletter = require("./FocusFeedNewsletter.js");
 const { getRandomImageUrl } = require("./randomImage");
 const { fetchUserSources } = require("./fetchUserSources");
 
-// Example function to fetch a single "Pick of the Day" from your API
-// async function fetchLatestArticle() {
-//   const fetch = await import("node-fetch"); // dynamic import if not installed globally
-//   const response = await fetch.default("https://newsapi-r8fr.onrender.com/wired-pick-of-day");
-//   const data = await response.json();
-//   console.log("Fetched Image URL:", data.article_image);
-//   console.log("Full Response:", data); 
-
-//   const randomImage = getRandomImageUrl();
-//   return {
-//     title: data.article_title,
-//     image: randomImage,
-//     summary: data.article_text,
-//     link: data.article_link,
-//   };
-// }
-
 async function fetchArticlesForUser(uid) {
   const fetch = await import("node-fetch");
   const baseURL = "https://newsapi-r8fr.onrender.com";
@@ -31,8 +14,6 @@ async function fetchArticlesForUser(uid) {
   // 1. Get user data from Firestore
   const userData = await fetchUserSources(uid);
 
-  // 2. Pull out the array of sources
-  // const { sources = [], firstName = "", email = "" } = userData;
   const {
     firstName = "",
     lastName = "",
@@ -46,9 +27,9 @@ async function fetchArticlesForUser(uid) {
 
 
   // 3. For each source, call the API
-  const requests = sources.map((src) => fetch.default(baseURL + src.endpoint));
-  const responses = await Promise.all(requests);
-  const dataArray = await Promise.all(responses.map((res) => res.json()));
+  // const requests = sources.map((src) => fetch.default(baseURL + src.endpoint));
+  // const responses = await Promise.all(requests);
+  // const dataArray = await Promise.all(responses.map((res) => res.json()));
 
   // 4. Convert each response into a consistent shape
 
@@ -127,34 +108,6 @@ async function fetchArticlesForUser(uid) {
   };
 }
 
-// async function fetchArticles() {
-//   const fetch = await import("node-fetch");
-//   const baseURL = "https://newsapi-r8fr.onrender.com";
-
-//   // Add as many endpoints as you want
-//   const endpoints = [
-//     "/wired-pick-of-day",
-//     "/economist-pick-of-day",
-//     "/rolling-stone-movies-tv-pick-of-day",
-//     // etc.
-//   ];
-
-//   // Fetch them all in parallel
-//   const requests = endpoints.map((ep) => fetch.default(baseURL + ep));
-//   const responses = await Promise.all(requests);
-//   const dataArray = await Promise.all(responses.map((res) => res.json()));
-
-//   // Convert each response into a consistent shape
-//   return dataArray.map((data) => ({
-//     title: data.article_title,
-//     summary: data.article_text,
-//     link: data.article_link,
-//     // Use random local image or fallback if your API doesn’t provide images
-//     image: getRandomImageUrl(),
-//   }));
-// }
-
-
 async function sendNewsletter(uid) {
   // // 1. Get the article from your existing API
   // const article = await fetchLatestArticle();
@@ -174,7 +127,11 @@ async function sendNewsletter(uid) {
   } = await fetchArticlesForUser(uid);
   // const articles = await fetchArticles();
   // If absolutely no articles remain, you might want to handle that:
-  if (!articles.length) {
+  // if (!articles.length) {
+  //   console.log(`No valid articles found for ${firstName}—skipping send.`);
+  //   return;
+  // }
+  if (!articles || !articles.length) {
     console.log(`No valid articles found for ${firstName}—skipping send.`);
     return;
   }
