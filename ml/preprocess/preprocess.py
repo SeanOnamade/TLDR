@@ -10,6 +10,7 @@ from nltk.tokenize import sent_tokenize
 from nltk.tokenize import sent_tokenize
 from sentence_transformers import SentenceTransformer
 import numpy as np
+import sys
 
 class preProcessor:
     '''
@@ -74,44 +75,15 @@ class preProcessor:
 
 
     
+def main():
+    # Read the input data from the command line
+    input_data = sys.argv[1]
+    
+    # Process the data (this is just a placeholder for your actual processing logic)
+    processed_data = input_data.upper()  # Example processing: convert to uppercase
+    
+    # Output the processed data
+    print(processed_data)
+
 if __name__ == "__main__":
-    #print(nltk.data.path)
-    preprocessor = preProcessor()
-    preProcessor2 = preProcessor()
-    f1_story = """On a bright Sunday morning at the legendary Silverstone Circuit, the roar of engines
-                    echoed across the grandstands. The red-liveried Ferrari led the formation lap, closely followed
-                    by the reigning champion in his silver Mercedes. As the lights went out, the cars surged forward,
-                    tires screeching. A daring overtake at Copse Corner brought the crowd to its feet. In the end,
-                    a well-timed pit stop and steady driving secured a thrilling victory for the challenger, marking
-                    a new chapter in the fierce battle for the Formula 1 championship title."""
-
-    f1_story_alt = """On a crisp Sunday morning at the historic Silverstone Circuit, the engines roared to life,
-                    filling the stands with excitement. A striking red Ferrari dominated the formation lap, trailed closely
-                    by the defending champion in a gleaming silver Mercedes. As the race commenced, the cars exploded off the line,
-                    their tires screaming through every turn. A bold maneuver at Copse Corner sent shockwaves through the crowd.
-                    Ultimately, an expertly timed pit stop and unwavering control propelled the challenger to a stunning victory,
-                    ushering in a new era in the fierce battle for the Formula 1 championship."""
-
-
-    preprocessor.vector_embedding(f1_story)
-    preprocessor.vector_embedding(f1_story_alt)
-
-    print(preprocessor.vec_space)
-    # testing
-    embeddings = preprocessor.vector_embedding(f1_story)
-    embeddings2 = preProcessor2.vector_embedding(f1_story_alt)
-    
-    print(preprocessor)
-    print(f"Number of sentences embedded: {len(embeddings)}")
-    print(f"Size of each vector: {embeddings[0].shape}")
-    print(f"Total vectors in vector space: {len(preprocessor.vec_space)}")
-    print(f"\n{np.stack(preprocessor.vec_space[:10])}")
-    print('~~~~~~~~~~~~~~~~~~~~~\n')
-    print(f"\n{np.stack(preProcessor2.vec_space[:10])}")
-    
-    print('~~~~~~~~~~~~~~~~~~~~~\n')
-    temp = preprocessor.cosine_similarity(preProcessor2.vec_space)
-    reg = np.mean(temp) * 100
-    print(f'cosine sim between embeddings: \n {temp}\n')
-    
-    print(f'Percent similarity: \n {reg}')
+    main()
