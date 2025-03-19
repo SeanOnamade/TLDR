@@ -40,7 +40,7 @@ async function fetchArticlesForUser(uid) {
     onboarded = false,
     sources = [],
     topics = [],
-    email = "", // this is the fallback: sean.d.onamade@vanderbilt.edu
+    email = "",
   } = userData;
 
 
@@ -51,18 +51,41 @@ async function fetchArticlesForUser(uid) {
   const dataArray = await Promise.all(responses.map((res) => res.json()));
 
   // 4. Convert each response into a consistent shape
-  const articles = dataArray.map((articleData, i) => ({
-    title: articleData.article_title,
-    summary: articleData.article_text,
-    link: articleData.article_link,
-    // image: sources[i].image
-    //   ? `https://placehold.co/600x400?text=Focus+Feed` // or your actual host
-    //   : getRandomImageUrl(),
-    image: getRandomImageUrl(),
-    // or if your source has a custom image, you can do:
-    // image: sources[i].image ? `https://example.com/home_images/${sources[i].image}` : getRandomImageUrl()
-    sourceName: sources[i].name, // e.g. "Economist"
-  }));
+
+  // const articles = dataArray.map((articleData, i) => ({
+  //   title: articleData.article_title,
+  //   summary: articleData.article_text,
+  //   link: articleData.article_link,
+  //   // image: sources[i].image
+  //   //   ? `https://placehold.co/600x400?text=Focus+Feed` // or your actual host
+  //   //   : getRandomImageUrl(),
+  //   image: getRandomImageUrl(),
+  //   // or if your source has a custom image, you can do:
+  //   // image: sources[i].image ? `https://example.com/home_images/${sources[i].image}` : getRandomImageUrl()
+  //   sourceName: sources[i].name, // e.g. "Economist"
+  // }));
+
+    const articles = dataArray.reduce((acc, articleData, i) => {
+    const hasText = articleData.article_text && articleData.article_text.trim() !== "";
+    const hasTitle = articleData.article_title && articleData.article_title.trim() !== "";
+    const hasLink = articleData.article_link && articleData.article_link.trim() !== "";
+
+    if (!hasText || !hasTitle || !hasLink) {
+      console.log(
+        `Omitting source "${sources[i].name}" for user "${firstName}"—missing article_text/title/link.`
+      );
+      return acc; // skip pushing to the final array
+    }
+
+    acc.push({
+      title: articleData.article_title,
+      summary: articleData.article_text,
+      link: articleData.article_link,
+      image: getRandomImageUrl(),
+      sourceName: sources[i].name,
+    });
+    return acc;
+  }, []);
 
   return {
     articles,
@@ -121,6 +144,11 @@ async function sendNewsletter(uid) {
     email,
   } = await fetchArticlesForUser(uid);
   // const articles = await fetchArticles();
+  // If absolutely no articles remain, you might want to handle that:
+  if (!articles.length) {
+    console.log(`No valid articles found for ${firstName}—skipping send.`);
+    return;
+  }
 
   // 2. Render the newsletter with all articles
   const emailHtml = ReactDOMServer.renderToStaticMarkup(
@@ -156,7 +184,7 @@ async function sendNewsletter(uid) {
 
 // If you run this file directly with `node`, call sendNewsletter()
 if (require.main === module) {
-  const testUID = "0YPGe9vAOnbZONISEnm7Nz63PqG2";
+  const testUID = "P3yrTbexu3fQqcNJDdBsxktQ8ev1";
   sendNewsletter(testUID).catch(console.error);
   console.log(`Email sent to ${testUID}`)
   // sendNewsletter().catch((err) => console.error("Error sending newsletter:", err));
