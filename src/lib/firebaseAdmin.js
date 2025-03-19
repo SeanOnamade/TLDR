@@ -3,17 +3,27 @@ require("dotenv").config();
 const admin = require("firebase-admin");
 
 
+const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY_JSON);
+
+
 // 1. Initialize the Admin SDK
 // (Use your service account JSON or 'applicationDefault' if you prefer)
+// if (!admin.apps.length) {
+//   admin.initializeApp({
+//     credential: admin.credential.applicationDefault(),
+//     // or admin.credential.cert(serviceAccount),
+//     // You can optionally set databaseURL if using RTDB
+//   });
+//   // In firebaseAdmin.js, after admin.initializeApp():
+//   console.log("Admin SDK Project ID:", admin.app().options.projectId);
+
+// }
+
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-    // or admin.credential.cert(serviceAccount),
-    // You can optionally set databaseURL if using RTDB
+    credential: admin.credential.cert(serviceAccount),
   });
-  // In firebaseAdmin.js, after admin.initializeApp():
   console.log("Admin SDK Project ID:", admin.app().options.projectId);
-
 }
 
 // 2. Export the Firestore instance
