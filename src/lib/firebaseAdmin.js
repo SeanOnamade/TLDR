@@ -22,6 +22,7 @@ const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY_JSON);
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
+    projectId: "focus-feed-132f8",
   });
   console.log("Admin SDK Project ID:", admin.app().options.projectId);
 }
