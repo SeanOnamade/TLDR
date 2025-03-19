@@ -65,27 +65,56 @@ async function fetchArticlesForUser(uid) {
   //   sourceName: sources[i].name, // e.g. "Economist"
   // }));
 
-    const articles = dataArray.reduce((acc, articleData, i) => {
-    const hasText = articleData.article_text && articleData.article_text.trim() !== "";
-    const hasTitle = articleData.article_title && articleData.article_title.trim() !== "";
-    const hasLink = articleData.article_link && articleData.article_link.trim() !== "";
+  const articles = [];
 
-    if (!hasText || !hasTitle || !hasLink) {
+  // 2. For each source, attempt to fetch the article
+  for (const src of sources) {
+    const route = src.endpoint;
+    const url = baseURL + route;
+
+    try {
+      const res = await fetch.default(url);
+
+      // If the fetch fails or returns a non-2xx status, skip it
+      if (!res.ok) {
+        console.log(
+          `Skipping source "${src.name}" for user "${firstName}"—` +
+          `fetch returned status ${res.status}`
+        );
+        continue;
+      }
+
+      // Attempt to parse JSON
+      const articleData = await res.json();
+
+      // Check if critical fields are present
+      if (
+        !articleData.article_title ||
+        !articleData.article_text ||
+        !articleData.article_link
+      ) {
+        console.log(
+          `Omitting source "${src.name}" for user "${firstName}"—` +
+          `missing article_text/title/link.`
+        );
+        continue;
+      }
+
+      // If all good, push a cleaned-up object
+      articles.push({
+        title: articleData.article_title,
+        summary: articleData.article_text,
+        link: articleData.article_link,
+        image: getRandomImageUrl(), // or your logic
+        sourceName: src.name,
+      });
+    } catch (err) {
+      // This catches JSON parse errors, network errors, etc.
       console.log(
-        `Omitting source "${sources[i].name}" for user "${firstName}"—missing article_text/title/link.`
+        `Skipping source "${src.name}" for user "${firstName}"—error: ${err}`
       );
-      return acc; // skip pushing to the final array
     }
-
-    acc.push({
-      title: articleData.article_title,
-      summary: articleData.article_text,
-      link: articleData.article_link,
-      image: getRandomImageUrl(),
-      sourceName: sources[i].name,
-    });
-    return acc;
-  }, []);
+  }
 
   return {
     articles,
