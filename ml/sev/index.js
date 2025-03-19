@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
 const https = require('https');
+const {spawn} = require('child_process')
 require('dotenv').config();
 
 
@@ -104,7 +105,6 @@ const routeHander = async (formattedNews) =>
  * 
  *          TLDR: Takes data and uses it to train model based on cosine similarity in high dimensional space
  * 
-<<<<<<< HEAD
  * /prod: Route which users will interact with, this is the route that pulls from the frozen graph for model weights
  *          and is only concerned about providing news articles for users. The information will go into here, each sentence will be extracted from the json.body
  *          and these will be converted into latent space using pre-trained model, then a clustering algorithm will be used to disect latent space and then the mean of
@@ -115,9 +115,28 @@ const routeHander = async (formattedNews) =>
 
 // /preProcess -> The route that preprocesses the raw text
 app.post('/preProcess', (req, res) => {
-    let data = req.body;
-    res.json({message: "process up", data});
-})
+    const data = req.body.text;
+
+    // Spawn a new process for the Python script
+    const process = spawn('python3', ['ml/preprocess/preprocess.py', data]);
+    let output = '';
+
+    // Collect data from the script and catch errors
+    process.stdout.on('data', (data) => {
+        output += data.toString();
+    });
+    process.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+    });
+
+    // When the process is done, send the response
+    process.on('close', (code) => {
+        if (code !== 0) {
+            return res.status(500).json({ error: 'Failed to process text' });
+        }
+        res.json({ message: 'Processed text', data: output });
+    });
+});
 
 // /train -> route for training clustering model
 app.post('/train', (req, res) => {
