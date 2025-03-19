@@ -140,7 +140,7 @@ async function sendNewsletter(uid) {
     // from: "FocusFeed <onboarding@resend.dev>",
     from: "FocusFeed <newsletter@focusfeed.org>",
     to: [email || "sean.d.onamade@vanderbilt.edu"], // fallback if no email
-    subject: `🚀 ${articles[0].title} – Your Daily Focus Feed`,
+    subject: `📰 ${articles[0].title} – Your Daily Focus Feed`,
     html: emailHtml,
   });
   // await resend.emails.send({
@@ -156,7 +156,7 @@ async function sendNewsletter(uid) {
 
 // If you run this file directly with `node`, call sendNewsletter()
 if (require.main === module) {
-  const testUID = "jI79fMSDsNf3uBVhDjmZ1Pxud1m2";
+  const testUID = "0YPGe9vAOnbZONISEnm7Nz63PqG2";
   sendNewsletter(testUID).catch(console.error);
   console.log(`Email sent to ${testUID}`)
   // sendNewsletter().catch((err) => console.error("Error sending newsletter:", err));
