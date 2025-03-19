@@ -2,20 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
-const https = require('https');
 const {spawn} = require('child_process')
 require('dotenv').config();
 
 
 
-// Server initialization [DD1]
+// Server initialization
 const app = express();
 const CONNECT_PORT = 7050;
-const sslOptions = 
-{
-    key: process.env.SSL_KEY,
-    cert: process.env.SSL_CERT,
-};
 
 app.use(cors());
 
@@ -52,7 +46,7 @@ const routeHander = async (formattedNews) =>
     if (typeof formattedNews !== 'string' || formattedNews.trim === '' || serverStat == 0)
     {
             ENDING_STATUS = 2;
-            console.error("Should not be here, you are literally coding this thing right now...")
+            console.error("Invalid input or server state.");
             return ENDING_STATUS;
     }
     
@@ -65,17 +59,12 @@ const routeHander = async (formattedNews) =>
                 data: formattedNews
             });
 
-            if (NEWS.status === 200)
-            {
-                ENDING_STATUS = 1;
-            } else {
-                ENDING_STATUS = 2;
-            }
+            ENDING_STATUS = NEWS.status === 200 ? 1 : 2;
 
         } catch (error) {
             ENDING_STATUS = 2;
         }
-        return serverStat
+        return ENDING_STATUS;
     };
 
 }
@@ -88,7 +77,7 @@ const routeHander = async (formattedNews) =>
  *              formatting pipeline that removes semi-irrelenvent information, such as ads, from the request, via running
  *              the text via sentece iteration, then ran on a pretrained model of common phrases associated with ads. This
  *              model further formats the data which is then sent to either the /training, /val, /prod depending on the server STATE
- * 
+ * ßß
  *              TLDR: correctly formats data and sends where it needs to go
  *
  * /filter: route for deciding where the data will go to, if server status is on train send data to /train to be
@@ -147,13 +136,13 @@ app.post('/train', (req, res) => {
 // /prod -> production server where users will interact
 app.post('/prod', (req, res) => {
     let data = req.body
-    res.json({message: "train route receive: ", data})
+    res.json({message: "prod route receive: ", data})
 })
 
 // /filter -> route for filtering incoming data to prevent multi tagging and save space
 app.post('/filter', (req, res) => {
     let data = req.body
-    res.json({message: "train route receive: ", data})
+    res.json({message: "filter route receive: ", data})
 })
 
 
@@ -170,11 +159,9 @@ app.post('/filter', (req, res) => {
  *          -> '-d {}' is telling the server what they are sending in response.body()
  *          
  */
-if (require.main === module) {
-    https.createServer(sslOptions, app).listen(CONNECT_PORT, () => {
-        console.log(`HTTPS server running at https://localhost:${CONNECT_PORT}`);
-    });
-}
+app.listen(CONNECT_PORT, () => {
+    console.log(`HTTP server running at http://localhost:${CONNECT_PORT}`);
+});
 
 module.exports = app;
 
