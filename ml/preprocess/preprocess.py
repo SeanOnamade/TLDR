@@ -9,6 +9,7 @@ if local_punkt_path not in nltk.data.path:
 from nltk.tokenize import sent_tokenize
 from nltk.tokenize import sent_tokenize
 from sentence_transformers import SentenceTransformer
+from umap import UMAP
 import numpy as np
 import sys
 
@@ -25,15 +26,6 @@ class preProcessor:
         self.transformer = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
         self.vec_space = []
     
-    
-    '''
-        @breif: This function calls out to the webscraping API and brings in data which is used as input for the 
-                data cleaning function. Basically this gets information from webscrape API and extracts text from
-                returned JSON and sends that out to cleaning function
-    '''
-    def obtain_info():
-        return
-    
     '''
         @breif: This function removes unecessary information (noise like random chars or ads) from text. This is based on grouping all relevant
                 information (information such as description) based and then removes outiers. This is done by checking to see if there is a consistent flow
@@ -44,8 +36,17 @@ class preProcessor:
                 outlier in the pattern that the vectorized sentences go in.
         
     '''
-    def clean_data():
-        return
+    def clean_data(self, threshold=0.5):
+        cleaned_sentences = []
+        for i in range(1, len(self.vec_space)):
+            # Assuming self.vec_space[i] is a 2D array where each row is a vector
+            for j in range(min(len(self.vec_space[i-1]), len(self.vec_space[i]))):
+                v1 = self.vec_space[i-1][j]
+                v2 = self.vec_space[i][j]
+                sim = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+                if sim >= threshold:
+                    cleaned_sentences.append(v2)
+        return cleaned_sentences
     
     '''
         @breif: This is the function that embbeds the sentence into a vector and adds it to the vector space. This is done
@@ -72,18 +73,43 @@ class preProcessor:
                 sim = np.dot(sentence_v1, sentence_v2) / (np.linalg.norm(sentence_v1) * np.linalg.norm(sentence_v2))
                 similarities.append(sim)
         return np.array(similarities)
-
+    
+    '''
+        @breif: This is the U-Map funciton that will be used to transform the vector space to
+                latent space, via U-Map algo
+    '''
+    def U_MAP(self, n_components=2, min_dist=0.1):
+        # Flatten the 3D vec_space into a 2D array for UMAP
+        all_vectors = np.vstack(self.vec_space)
+        
+        # Check if the number of data points is sufficient
+        num_data_points = all_vectors.shape[0]
+        if num_data_points <= 1:
+            raise ValueError("Not enough data points for UMAP transformation.")
+        
+        # Dynamically set n_neighbors based on the number of data points
+        n_neighbors = min(15, num_data_points - 1)
+        
+        # Ensure n_components is less than the number of data points
+        n_components = min(n_components, num_data_points - 1)
+        
+        # Initialize UMAP with dynamically adjusted parameters
+        umap_model = UMAP(n_components=n_components, n_neighbors=n_neighbors, min_dist=min_dist)
+        
+        # Fit and transform the data
+        transformed_space = umap_model.fit_transform(all_vectors)
+        
+        return transformed_space
+        
 
     
 def main():
     # Read the input data from the command line
     input_data = sys.argv[1]
-    
-    # Process the data (this is just a placeholder for your actual processing logic)
-    processed_data = input_data.upper()  # Example processing: convert to uppercase
-    
-    # Output the processed data
-    print(processed_data)
+    encoding = preProcessor()
+    encoding.vector_embedding(input_data)
+    encoding.vec_space = encoding.U_MAP()
+    print(encoding.vec_space)
 
 if __name__ == "__main__":
     main()
