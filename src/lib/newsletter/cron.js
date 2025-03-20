@@ -7,7 +7,7 @@ const { sendNewsletter } = require("./sendNewsletter");
 console.log("🕒 Cron job initialized... Waiting to send emails.");
 
 // Schedule task to run daily at 8 AM server time??
-cron.schedule("50 20 * * 3", async () => {
+cron.schedule("30 21 * * 4", async () => {
   try {
     console.log("Weekly newsletter cron started...");
 
