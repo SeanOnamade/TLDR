@@ -189,13 +189,8 @@ function Home() {
                       <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
                         <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <img
-<<<<<<< HEAD
-                            src={`../../home_images/${item.endpoint.image}`}
-                            alt={item.endpoint.image}
-=======
                             src={`../../home_images/${item.endpoint.image}`} // !! THIS CAUSES A GLITCH WHERE IT TRIES TO ACCESS IMAGES THAT DON'T EXIST
                             alt={`Image ${index + 1}`}
->>>>>>> sean
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
                           <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">
