@@ -21,7 +21,6 @@ function Home() {
   const [endpoints, setEndpoints] = useState([]);
   const [preferredLanguage, setPreferredLanguage] = useState("english");
 
-
   const handleScroll = () => {
     if (window.scrollY > 40) {
       setIsShrunk(true);
@@ -35,21 +34,23 @@ function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Fetch user preferences (language and sources) from Firebase
   useEffect(() => {
-  const fetchUserPreferences = async () => {
-    try {
-      const userDocRef = doc(db, "users", auth.currentUser.uid);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        setPreferredLanguage(userData.language || "english"); // Default to English
+    const fetchUserPreferences = async () => {
+      try {
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setPreferredLanguage(userData.language || "english"); // Default to English
+          setEndpoints(userData.sources || []);
+        }
+      } catch (error) {
+        console.error("Error fetching user preferences:", error);
       }
-    } catch (error) {
-      console.error("Error fetching user preferences:", error);
-    }
-  };
-  fetchUserPreferences();
-}, []);
+    };
+    fetchUserPreferences();
+  }, []);
 
   // Fetch a primary article (wired-pick-of-day)
   useEffect(() => {
@@ -64,40 +65,6 @@ function Home() {
         setLoading(false);
       });
   }, [preferredLanguage]);
-
-  // Fetch the user's preferred sources from Firebase
-  useEffect(() => {
-    const fetchSources = async () => {
-      try {
-        const userDocRef = doc(db, "users", auth.currentUser.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setEndpoints(userData.sources || []);
-        }
-      } catch (error) {
-        console.error("Error fetching user sources:", error);
-      }
-    };
-    fetchSources();
-  }, []);
-
-
-useEffect(() => {
-  const fetchUserPreferences = async () => {
-    try {
-      const userDocRef = doc(db, "users", auth.currentUser.uid);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        setPreferredLanguage(userData.language || "english"); // Default to English
-      }
-    } catch (error) {
-      console.error("Error fetching user preferences:", error);
-    }
-  };
-  fetchUserPreferences();
-}, []);
 
   // Once endpoints are loaded, fetch each source's data
   useEffect(() => {
