@@ -19,7 +19,7 @@ function Home() {
   const [error, setError] = useState(null);
   const [dataArray, setDataArray] = useState([]);
   const [endpoints, setEndpoints] = useState([]);
-  const [preferredLanguage, setPreferredLanguage] = useState("english");
+  const [preferredLanguage, setPreferredLanguage] = useState(null);
 
   const handleScroll = () => {
     if (window.scrollY > 40) {
@@ -42,7 +42,7 @@ function Home() {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          setPreferredLanguage(userData.language || "english"); // Default to English
+          setPreferredLanguage(userData.language);
           setEndpoints(userData.sources || []);
         }
       } catch (error) {
@@ -54,16 +54,18 @@ function Home() {
 
   // Fetch a primary article (wired-pick-of-day)
   useEffect(() => {
-    axios
-      .get(`https://newsapi-r8fr.onrender.com/wired-pick-of-day?language=${preferredLanguage}`)
-      .then((response) => {
-        setData(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+    if (preferredLanguage) {
+      axios
+        .get(`https://newsapi-r8fr.onrender.com/wired-pick-of-day?language=${preferredLanguage}`)
+        .then((response) => {
+          setData(response.data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err);
+          setLoading(false);
+        });
+    }
   }, [preferredLanguage]);
 
   // Once endpoints are loaded, fetch each source's data
