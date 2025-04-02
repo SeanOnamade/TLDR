@@ -67,6 +67,7 @@ const Onboarding = () => {
           sources: selectedSources,
           language: language.toLowerCase(), // Save language in lowercase to match API requirements
           onboarded: true,
+          subscribed: true,
         },
         { merge: true }
       );

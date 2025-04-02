@@ -22,6 +22,7 @@ async function fetchArticlesForUser(uid) {
     sources = [],
     topics = [],
     email = "",
+    subscribed = true,
   } = userData;
 
 
@@ -105,6 +106,7 @@ async function fetchArticlesForUser(uid) {
     onboarded,
     topics,
     email,
+    subscribed
   };
 }
 
@@ -124,6 +126,7 @@ async function sendNewsletter(uid) {
     firstName,
     lastName,
     email,
+    subscribed,
   } = await fetchArticlesForUser(uid);
   // const articles = await fetchArticles();
   // If absolutely no articles remain, you might want to handle that:
@@ -131,10 +134,15 @@ async function sendNewsletter(uid) {
   //   console.log(`No valid articles found for ${firstName}—skipping send.`);
   //   return;
   // }
+  if (!subscribed) {
+    console.log("user not subscribed for emails");
+    return;
+  }
   if (!articles || !articles.length) {
     console.log(`No valid articles found for ${firstName}—skipping send.`);
     return;
   }
+
 
   // 2. Render the newsletter with all articles
   const emailHtml = ReactDOMServer.renderToStaticMarkup(
