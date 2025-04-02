@@ -223,7 +223,7 @@ function Home() {
         </section>
 
         {/* Trending Section using individual sources */}
-        <div className="font-bold text-white mt-12">TRENDING</div>
+        <div className="font-bold text-white mt-12">YOUR FEED</div>
         <div className="h-[2px] w-full bg-[#ffffff7e]"></div>
         <section className="flex justify-center">
           <Carousel opts={{ align: "start" }} className="w-full">
