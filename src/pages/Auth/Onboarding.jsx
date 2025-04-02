@@ -31,6 +31,8 @@ const ListItem = React.forwardRef(({ title, isSelected, onClick }, ref) => (
 ListItem.displayName = "ListItem";
 
 const Onboarding = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [selectedSources, setSelectedSources] = useState([]);
   const [language, setLanguage] = useState("English"); // Default to English
@@ -63,6 +65,8 @@ const Onboarding = () => {
       await setDoc(
         doc(db, "users", currentUser.uid),
         {
+          firstName,
+          lastName,
           topics: selectedTopics,
           sources: selectedSources,
           language: language.toLowerCase(), // Save language in lowercase to match API requirements
@@ -82,25 +86,47 @@ const Onboarding = () => {
     <div className="flex flex-col items-center justify-center min-h-screen mt-[-6rem]">
       <h1 className="text-3xl font-bold mb-6 text-white">Onboarding</h1>
       <div className="w-full max-w-md bg-white p-6 rounded shadow">
-        <h2 className="text-xl font-semibold mb-4">
-          Select Your Language Preference
-        </h2>
-        <div className="mb-4">
-          <select
-            id="language"
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-300 focus:outline-none focus:border-indigo-500"
-          >
-            {languageOptions.map((lang) => (
-              <option key={lang} value={lang}>
-                {lang}
-              </option>
-            ))}
-          </select>
+        <h2 className="text-xl font-semibold mb-2">Your Profile</h2>
+        <div className="mb-6 grid grid-cols-2 gap-4">
+          <div>
+            <label
+              htmlFor="first-name"
+              className="block text-sm font-semibold text-gray-700 mb-1"
+            >
+              First Name
+            </label>
+            <input
+              id="first-name"
+              name="first-name"
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              autoComplete="given-name"
+              placeholder="First name"
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-300 focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="last-name"
+              className="block text-sm font-semibold text-gray-700 mb-1"
+            >
+              Last Name
+            </label>
+            <input
+              id="last-name"
+              name="last-name"
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              autoComplete="family-name"
+              placeholder="Last name"
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-300 focus:outline-none focus:border-indigo-500"
+            />
+          </div>
         </div>
-        
-        <h2 className="text-xl font-semibold mb-4">
+
+        <h2 className="text-xl font-semibold mb-2">
           Select Your Topic Preferences
         </h2>
         <div className="flex flex-wrap">
@@ -116,7 +142,7 @@ const Onboarding = () => {
           ))}
         </div>
 
-        <h2 className="text-xl font-semibold mt-6 mb-4">
+        <h2 className="text-xl font-semibold mt-6 mb-2">
           Select Your News Source Preferences
         </h2>
         <div className="flex flex-wrap">
@@ -132,6 +158,24 @@ const Onboarding = () => {
               }
             />
           ))}
+        </div>
+
+        <h2 className="text-xl font-semibold mt-6 mb-2">
+          Select Your Language Preference
+        </h2>
+        <div>
+          <select
+            id="language"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-300 focus:outline-none focus:border-indigo-500"
+          >
+            {languageOptions.map((lang) => (
+              <option key={lang} value={lang}>
+                {lang}
+              </option>
+            ))}
+          </select>
         </div>
 
         <button
