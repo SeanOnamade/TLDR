@@ -19,6 +19,8 @@ function Home() {
   const [error, setError] = useState(null);
   const [dataArray, setDataArray] = useState([]);
   const [endpoints, setEndpoints] = useState([]);
+  const [preferredLanguage, setPreferredLanguage] = useState("english");
+
 
   const handleScroll = () => {
     if (window.scrollY > 40) {
@@ -33,10 +35,26 @@ function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+  const fetchUserPreferences = async () => {
+    try {
+      const userDocRef = doc(db, "users", auth.currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setPreferredLanguage(userData.language || "english"); // Default to English
+      }
+    } catch (error) {
+      console.error("Error fetching user preferences:", error);
+    }
+  };
+  fetchUserPreferences();
+}, []);
+
   // Fetch a primary article (wired-pick-of-day)
   useEffect(() => {
     axios
-      .get("https://newsapi-r8fr.onrender.com/wired-pick-of-day")
+      .get(`https://newsapi-r8fr.onrender.com/wired-pick-of-day?language=${preferredLanguage}`)
       .then((response) => {
         setData(response.data);
         setLoading(false);
@@ -45,7 +63,7 @@ function Home() {
         setError(err);
         setLoading(false);
       });
-  }, []);
+  }, [preferredLanguage]);
 
   // Fetch the user's preferred sources from Firebase
   useEffect(() => {
@@ -64,12 +82,29 @@ function Home() {
     fetchSources();
   }, []);
 
+
+useEffect(() => {
+  const fetchUserPreferences = async () => {
+    try {
+      const userDocRef = doc(db, "users", auth.currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setPreferredLanguage(userData.language || "english"); // Default to English
+      }
+    } catch (error) {
+      console.error("Error fetching user preferences:", error);
+    }
+  };
+  fetchUserPreferences();
+}, []);
+
   // Once endpoints are loaded, fetch each source's data
   useEffect(() => {
-    if (endpoints.length > 0) {
+    if (endpoints.length > 0 && preferredLanguage) {
       Promise.all(
         endpoints.map(({ endpoint }) =>
-          axios.get(`https://newsapi-r8fr.onrender.com${endpoint}`)
+          axios.get(`https://newsapi-r8fr.onrender.com${endpoint}?language=${preferredLanguage}`)
         )
       )
         .then((responses) => {
@@ -83,7 +118,7 @@ function Home() {
           console.error(err);
         });
     }
-  }, [endpoints]);
+  }, [endpoints, preferredLanguage]);
 
   return (
     <div className="flex-col">

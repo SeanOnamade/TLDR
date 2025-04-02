@@ -20,6 +20,15 @@ import {
 
 import { topicsOptions, sourceOptions } from "@/constants/preferences";
 
+const languageOptions = [
+  "English", "Spanish", "French", "Chinese", "Japanese", "Hindi", "Arabic", "Portuguese",
+  "Russian", "German", "Italian", "Korean", "Bulgarian", "Croatian", "Czech", "Danish",
+  "Dutch", "Swedish", "Norwegian", "Finnish", "Polish", "Bengali", "Greek", "Thai",
+  "Vietnamese", "Indonesian", "Hebrew", "Turkish", "Ukrainian", "Romanian", "Slovak",
+  "Slovenian", "Serbian", "Bosnian", "Hungarian", "Tagalog", "Urdu", "Swahili", "Amharic",
+  "Somali", "Haitian Creole", "Lao", "Khmer", "Burmese", "Sinhalese", "Malay", "Macedonian"
+];
+
 function Preferences() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -229,10 +238,10 @@ function Preferences() {
                 onChange={(e) => setLanguage(e.target.value)}
                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900"
               >
-                <option value="">Select Language</option>
-                <option>English</option>
-                <option>Spanish</option>
-                <option>Mandarin</option>
+        <option value="">Select Language</option>
+        {languageOptions.map((lang) => (
+          <option key={lang} value={lang}>{lang}</option>
+        ))}
               </select>
             </div>
           </div>
