@@ -5,6 +5,16 @@ import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { topicsOptions, sourceOptions } from "@/constants/preferences";
 
+// Add language options as shown in Preferences.jsx
+const languageOptions = [
+  "English", "Spanish", "French", "Chinese", "Japanese", "Hindi", "Arabic", "Portuguese",
+  "Russian", "German", "Italian", "Korean", "Bulgarian", "Croatian", "Czech", "Danish",
+  "Dutch", "Swedish", "Norwegian", "Finnish", "Polish", "Bengali", "Greek", "Thai",
+  "Vietnamese", "Indonesian", "Hebrew", "Turkish", "Ukrainian", "Romanian", "Slovak",
+  "Slovenian", "Serbian", "Bosnian", "Hungarian", "Tagalog", "Urdu", "Swahili", "Amharic",
+  "Somali", "Haitian Creole", "Lao", "Khmer", "Burmese", "Sinhalese", "Malay", "Macedonian"
+];
+
 const ListItem = React.forwardRef(({ title, isSelected, onClick }, ref) => (
   <button
     ref={ref}
@@ -23,6 +33,7 @@ ListItem.displayName = "ListItem";
 const Onboarding = () => {
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [selectedSources, setSelectedSources] = useState([]);
+  const [language, setLanguage] = useState("English"); // Default to English
   const navigate = useNavigate();
 
   const toggleSelection = (item, selection, setSelection) => {
@@ -54,6 +65,7 @@ const Onboarding = () => {
         {
           topics: selectedTopics,
           sources: selectedSources,
+          language: language.toLowerCase(), // Save language in lowercase to match API requirements
           onboarded: true,
         },
         { merge: true }
@@ -69,6 +81,24 @@ const Onboarding = () => {
     <div className="flex flex-col items-center justify-center min-h-screen mt-[-6rem]">
       <h1 className="text-3xl font-bold mb-6 text-white">Onboarding</h1>
       <div className="w-full max-w-md bg-white p-6 rounded shadow">
+        <h2 className="text-xl font-semibold mb-4">
+          Select Your Language Preference
+        </h2>
+        <div className="mb-4">
+          <select
+            id="language"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-300 focus:outline-none focus:border-indigo-500"
+          >
+            {languageOptions.map((lang) => (
+              <option key={lang} value={lang}>
+                {lang}
+              </option>
+            ))}
+          </select>
+        </div>
+        
         <h2 className="text-xl font-semibold mb-4">
           Select Your Topic Preferences
         </h2>

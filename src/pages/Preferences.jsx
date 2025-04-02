@@ -116,7 +116,7 @@ function Preferences() {
           {
             firstName,
             lastName,
-            language,
+            language: language.toLowerCase(),
             email,
             topics,
             sources,
@@ -138,6 +138,7 @@ function Preferences() {
           alert("Password updated successfully.");
         }
         alert("Preferences saved!");
+        window.location.reload();
       } catch (error) {
         if (error.code === "auth/wrong-password") {
           alert("Incorrect current password. Please try again.");
