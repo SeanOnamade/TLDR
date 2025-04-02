@@ -38,6 +38,7 @@ function Preferences() {
   const [sources, setSources] = useState([]);
   const [newPassword, setNewPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
+  const [subscribed, setSubscribed] = useState(true);
 
   const user = auth.currentUser; // Get authenticated user
   const [initialValues, setInitialValues] = useState({
@@ -47,6 +48,7 @@ function Preferences() {
     language: "",
     topics: [],
     sources: [],
+    subscription: true,
   });
 
   useEffect(() => {
@@ -64,12 +66,14 @@ function Preferences() {
             language: userData.language || "",
             topics: userData.topics || [],
             sources: userData.sources || [],
+            subscription: userData.subscription || true,
           });
           setFirstName(userData.firstName || "");
           setLastName(userData.lastName || "");
           setLanguage(userData.language || "");
           setTopics(userData.topics || []);
           setSources(userData.sources || []);
+          setSubscribed(userData.subscribed ?? true);
         }
       };
       fetchUserData();
@@ -120,6 +124,7 @@ function Preferences() {
             email,
             topics,
             sources,
+            subscribed,
             onboarded: true,
           },
           { merge: true }
@@ -352,6 +357,20 @@ function Preferences() {
             </NavigationMenuList>
           </NavigationMenu>
         </div>
+
+              <div className="mt-6 flex items-center">
+        <input
+          id="subscribe"
+          type="checkbox"
+          checked={subscribed}
+          onChange={() => setSubscribed(!subscribed)}
+          className="w-5 h-5 text-indigo-600 bg-gray-900 border-gray-300 rounded focus:ring-indigo-500"
+        />
+        <label htmlFor="subscribe" className="ml-3 text-sm font-medium text-white">
+          Subscribe to emails
+        </label>
+      </div>
+
       </div>
 
       <div className="mt-6 flex items-center justify-end gap-x-6 pb-12">
