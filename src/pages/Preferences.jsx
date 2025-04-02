@@ -108,8 +108,10 @@ function Preferences() {
             firstName,
             lastName,
             language,
+            email,
             topics,
             sources,
+            onboarded: true,
           },
           { merge: true }
         );
