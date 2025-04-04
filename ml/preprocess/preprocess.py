@@ -11,6 +11,7 @@ from sentence_transformers import SentenceTransformer
 from umap import UMAP
 import numpy as np
 import sys
+import json
 
 class preProcessor:
     '''
@@ -93,22 +94,14 @@ class preProcessor:
         # Flatten the 3D vec_space into a 2D array for UMAP
         all_vectors = self.vec_space
         print(f"all_vectors shape before UMAP: {all_vectors.shape}")  # Debugging statement
-        
-        # Check if the number of data points is sufficient
         num_data_points = all_vectors.shape[0]
         if num_data_points <= 1:
             raise ValueError("Not enough data points for UMAP transformation.")
         
         # Dynamically set n_neighbors based on the number of data points
         n_neighbors = max(2, min(15, num_data_points - 1))
-        
-        # Ensure n_components is less than the number of data points
         n_components = min(n_components, num_data_points - 1)
-        
-        # Initialize UMAP with dynamically adjusted parameters
         umap_model = UMAP(n_components=n_components, n_neighbors=n_neighbors, min_dist=min_dist)
-        
-        # Fit and transform the data
         transformed_space = umap_model.fit_transform(all_vectors)
         
         return transformed_space
