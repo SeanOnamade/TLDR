@@ -7,11 +7,11 @@ local_punkt_path = os.path.join(os.path.dirname(__file__), 'punkt')
 if local_punkt_path not in nltk.data.path:
     nltk.data.path.insert(0, local_punkt_path)
 from nltk.tokenize import sent_tokenize
-from nltk.tokenize import sent_tokenize
 from sentence_transformers import SentenceTransformer
 from umap import UMAP
 import numpy as np
 import sys
+import json
 
 class preProcessor:
     '''
@@ -22,9 +22,10 @@ class preProcessor:
                 the unecessary words. Once the data is cleaned then this class will take each of the sentences and create a vector
                 representation of that sentence and add it to the vector space we are using for future clustering algorithms.
     '''
-    def __init__(self):
+    def __init__(self, fixed_dimension=384):
         self.transformer = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-        self.vec_space = []
+        self.vec_space = np.empty((0, fixed_dimension))
+        self.fixed_dimension = fixed_dimension
     
     '''
         @breif: This function removes unecessary information (noise like random chars or ads) from text. This is based on grouping all relevant
@@ -55,9 +56,16 @@ class preProcessor:
     def vector_embedding(self, text: str) -> np.array:
         BREAK_UP_SENTENCE = sent_tokenize(text)
         EMBEDDINGS = self.transformer.encode(BREAK_UP_SENTENCE)
-        self.vec_space.append(EMBEDDINGS)
-        return EMBEDDINGS
-    
+        
+        # Pad or truncate embeddings to match the fixed dimension
+        padded_embeddings = np.array([
+            np.pad(embedding, (0, max(0, self.fixed_dimension - len(embedding))), 'constant')[:self.fixed_dimension]
+            for embedding in EMBEDDINGS
+        ])
+        
+        self.vec_space = np.vstack((self.vec_space, padded_embeddings))
+        print(f"vec_space shape after embedding: {self.vec_space.shape}")  # Debugging statement
+        return padded_embeddings
     
     def cosine_similarity(self, embeddings2):
         import numpy as np
@@ -79,37 +87,36 @@ class preProcessor:
                 latent space, via U-Map algo
     '''
     def U_MAP(self, n_components=2, min_dist=0.1):
-        # Flatten the 3D vec_space into a 2D array for UMAP
-        all_vectors = np.vstack(self.vec_space)
+        # Check if vec_space is empty
+        if self.vec_space.size == 0:
+            raise ValueError("vec_space is empty. Ensure data is processed before calling U_MAP.")
         
-        # Check if the number of data points is sufficient
+        # Flatten the 3D vec_space into a 2D array for UMAP
+        all_vectors = self.vec_space
+        print(f"all_vectors shape before UMAP: {all_vectors.shape}")  # Debugging statement
         num_data_points = all_vectors.shape[0]
         if num_data_points <= 1:
             raise ValueError("Not enough data points for UMAP transformation.")
         
         # Dynamically set n_neighbors based on the number of data points
-        n_neighbors = min(15, num_data_points - 1)
-        
-        # Ensure n_components is less than the number of data points
+        n_neighbors = max(2, min(15, num_data_points - 1))
         n_components = min(n_components, num_data_points - 1)
-        
-        # Initialize UMAP with dynamically adjusted parameters
         umap_model = UMAP(n_components=n_components, n_neighbors=n_neighbors, min_dist=min_dist)
-        
-        # Fit and transform the data
         transformed_space = umap_model.fit_transform(all_vectors)
         
         return transformed_space
-        
 
-    
 def main():
     # Read the input data from the command line
     input_data = sys.argv[1]
     encoding = preProcessor()
     encoding.vector_embedding(input_data)
-    encoding.vec_space = encoding.U_MAP()
-    print(encoding.vec_space)
+    try:
+        transformed_space = encoding.U_MAP()
+        print("UMAP transformation successful.")
+        print(transformed_space)
+    except ValueError as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
     main()

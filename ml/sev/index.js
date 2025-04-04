@@ -9,6 +9,21 @@ require('dotenv').config();
 
 // Server initialization
 const app = express();
+
+// Add proper error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Something broke!' });
+});
+
+// Add timeout to requests
+app.use((req, res, next) => {
+    req.setTimeout(5000);
+    res.setTimeout(5000);
+    next();
+});
+
+app.use(express.json())
 const CONNECT_PORT = 7050;
 
 app.use(cors());

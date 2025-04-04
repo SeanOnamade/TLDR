@@ -1,11 +1,13 @@
 module.exports = {
     transform: {
-      '^.+\\.jsx?$': 'babel-jest', // Transforms JS and JSX files using Babel
+      '^.+\\.(js|jsx)$': 'babel-jest',
     },
     transformIgnorePatterns: [
-      '/node_modules/(?!axios)/', // Ensures `axios` is transformed, ignores other node_modules
+      '/node_modules/(?!(axios|axios-utils)/)'
     ],
     moduleNameMapper: {
       '^react-router-dom$': '<rootDir>/node_modules/react-router-dom', // Maps `react-router-dom` to its location
     },
+    testEnvironment: 'node',
+    moduleFileExtensions: ['js', 'jsx', 'json', 'node']
   };

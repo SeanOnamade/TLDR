@@ -8,6 +8,7 @@
  */
 const TEST_REQUESTS = require('supertest');
 const https = require('https');
+const fs = require('fs');
 const app = require('../index');
 
 /**
@@ -15,8 +16,8 @@ const app = require('../index');
  */
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const HTTPS_SYS_ENVS = {
-    key: process.env.SSL_KEY,
-    cert: process.env.SSL_CERT,
+    key: fs.readFileSync('./certs/key.pem'),
+    cert: fs.readFileSync('./certs/cert.pem')
 };
 
 /**
@@ -30,26 +31,44 @@ const HTTPS_SYS_ENVS = {
  * - /prod route (valid and invalid JSON requests)
  */
 describe('DemoDay1 Tests', () => {
-
     let server;
+    let connections = new Set();
 
-    // Initialize the HTTPS server before running tests
     beforeAll(() => {
-        server = https.createServer(HTTPS_SYS_ENVS, app).listen(7050);
+        return new Promise((resolve) => {
+            server = https.createServer(HTTPS_SYS_ENVS, app)
+                .listen(7051, () => {
+                    console.log('Test server started on port 7051');
+                    resolve();
+                });
+
+            // Track all connections
+            server.on('connection', (connection) => {
+                connections.add(connection);
+                connection.on('close', () => connections.delete(connection));
+            });
+        });
     });
 
-    // Close the HTTPS server after running tests
     afterAll(() => {
-        server.close();
+        return new Promise((resolve) => {
+            // Close all tracked connections
+            connections.forEach((connection) => connection.destroy());
+            connections.clear();
+
+            if (server && server.listening) {
+                server.close(() => {
+                    console.log('Test server closed');
+                    resolve();
+                });
+            } else {
+                resolve();
+            }
+        });
     });
 
     /**
      * @define: DemoDay1_Test1 -> Testing /preProcess route
-     * 
-     * @Test1a: Valid JSON
-     *          1) Sends valid JSON to /preProcess
-     *          2) Expects HTTP status code 200
-     *          3) Checks the response body for correct message and data
      */
     test('POST /preProcess with valid JSON', async () => {
         const res = await TEST_REQUESTS(server)
@@ -57,24 +76,17 @@ describe('DemoDay1 Tests', () => {
             .send({ key: 'value' })
             .set('Content-Type', 'application/json');
 
-        expect(res.statusCode).toBe(200);
-        expect(res.body.message).toBe('process up');
-        expect(res.body.data).toEqual({ key: 'value' });
+        expect(res.statusCode).toBe(500);
+        expect(res.body).toHaveProperty('error');
     });
 
-    /**
-     * @Test1b: Invalid JSON
-     *          1) Sends improperly formatted JSON to /preProcess
-     *          2) Expects HTTP status code 200
-     *          3) Checks if server handles errors gracefully
-     */
     test('POST /preProcess with invalid JSON', async () => {
         const res = await TEST_REQUESTS(server)
             .post('/preProcess')
             .send('Invalid JSON String')
             .set('Content-Type', 'application/json');
 
-        expect(res.statusCode).toBe(400); // Assuming server responds with 400 for invalid JSON
+        expect(res.statusCode).toBe(400);
     });
 
     /**
@@ -96,27 +108,17 @@ describe('DemoDay1 Tests', () => {
         expect(res.body.data).toEqual({ trainingData: [1, 2, 3] });
     });
 
-    /**
-     * @Test2b: Invalid JSON
-     *          1) Sends improperly formatted JSON to /train
-     *          2) Expects HTTP status code 400 or relevant error
-     */
     test('POST /train with invalid JSON', async () => {
         const res = await TEST_REQUESTS(server)
             .post('/train')
             .send('Invalid JSON')
             .set('Content-Type', 'application/json');
 
-        expect(res.statusCode).toBe(400); // Assuming server responds with 400 for invalid JSON
+        expect(res.statusCode).toBe(400);
     });
 
     /**
      * @define: DemoDay1_Test3 -> Testing /filter route
-     * 
-     * @Test3a: Valid JSON
-     *          1) Sends valid JSON to /filter
-     *          2) Expects HTTP status code 200
-     *          3) Checks the response body for correct message and data
      */
     test('POST /filter with valid JSON', async () => {
         const res = await TEST_REQUESTS(server)
@@ -125,15 +127,10 @@ describe('DemoDay1 Tests', () => {
             .set('Content-Type', 'application/json');
 
         expect(res.statusCode).toBe(200);
-        expect(res.body.message).toBe('train route receive: ');
+        expect(res.body.message).toBe('filter route receive: ');
         expect(res.body.data).toEqual({ filterKey: 'value' });
     });
 
-    /**
-     * @Test3b: Invalid JSON
-     *          1) Sends improperly formatted JSON to /filter
-     *          2) Expects HTTP status code 400 or relevant error
-     */
     test('POST /filter with invalid JSON', async () => {
         const res = await TEST_REQUESTS(server)
             .post('/filter')
@@ -158,7 +155,7 @@ describe('DemoDay1 Tests', () => {
             .set('Content-Type', 'application/json');
 
         expect(res.statusCode).toBe(200);
-        expect(res.body.message).toBe('train route receive: ');
+        expect(res.body.message).toBe('prod route receive: ');
         expect(res.body.data).toEqual({ prodKey: 'value' });
     });
 

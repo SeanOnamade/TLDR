@@ -36,8 +36,7 @@ Thumbs.db
 
 # ML DIRS
 ml/node_modules
-ml/sev/cert.pem
-ml/sev/key.pem
+ml/sev/certs
 ml/sev/node_modules/
 ml/sev/package-lock.json
 
