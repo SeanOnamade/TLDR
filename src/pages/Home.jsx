@@ -19,6 +19,7 @@ function Home() {
   const [error, setError] = useState(null);
   const [dataArray, setDataArray] = useState([]);
   const [endpoints, setEndpoints] = useState([]);
+  const [preferredLanguage, setPreferredLanguage] = useState(null);
 
   const handleScroll = () => {
     if (window.scrollY > 40) {
@@ -33,43 +34,46 @@ function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Fetch a primary article (wired-pick-of-day)
+  // Fetch user preferences (language and sources) from Firebase
   useEffect(() => {
-    axios
-      .get("https://newsapi-r8fr.onrender.com/wired-pick-of-day")
-      .then((response) => {
-        setData(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
-  }, []);
-
-  // Fetch the user's preferred sources from Firebase
-  useEffect(() => {
-    const fetchSources = async () => {
+    const fetchUserPreferences = async () => {
       try {
         const userDocRef = doc(db, "users", auth.currentUser.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const userData = userDoc.data();
+          setPreferredLanguage(userData.language);
           setEndpoints(userData.sources || []);
         }
       } catch (error) {
-        console.error("Error fetching user sources:", error);
+        console.error("Error fetching user preferences:", error);
       }
     };
-    fetchSources();
+    fetchUserPreferences();
   }, []);
+
+  // Fetch a primary article (wired-pick-of-day)
+  useEffect(() => {
+    if (preferredLanguage) {
+      axios
+        .get(`https://newsapi-r8fr.onrender.com/wired-pick-of-day?language=${preferredLanguage}`)
+        .then((response) => {
+          setData(response.data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err);
+          setLoading(false);
+        });
+    }
+  }, [preferredLanguage]);
 
   // Once endpoints are loaded, fetch each source's data
   useEffect(() => {
-    if (endpoints.length > 0) {
+    if (endpoints.length > 0 && preferredLanguage) {
       Promise.all(
         endpoints.map(({ endpoint }) =>
-          axios.get(`https://newsapi-r8fr.onrender.com${endpoint}`)
+          axios.get(`https://newsapi-r8fr.onrender.com${endpoint}?language=${preferredLanguage}`)
         )
       )
         .then((responses) => {
@@ -83,7 +87,7 @@ function Home() {
           console.error(err);
         });
     }
-  }, [endpoints]);
+  }, [endpoints, preferredLanguage]);
 
   return (
     <div className="flex-col">
@@ -102,8 +106,8 @@ function Home() {
         <section className="h-auto md:h-[390px] bg-[#FFFFFF1A] rounded-[15px] shadow-lg mb-5">
           <div className="flex flex-col md:flex-row w-full h-full p-1.5">
             <img
-              src="../../images/image.png"
-              alt="placeholder"
+              src="../../home_images/Wired.webp"
+              alt="Wired"
               className="object-cover w-full md:w-[50%] h-full rounded-[10px]"
             />
             <div className="w-full h-full p-4">
@@ -189,7 +193,7 @@ function Home() {
                       <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
                         <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <img
-                            src={`../../home_images/${item.endpoint.image}`}
+                            src={`../../home_images/${item.endpoint.image}`} // !! THIS CAUSES A GLITCH WHERE IT TRIES TO ACCESS IMAGES THAT DON'T EXIST
                             alt={`Image ${index + 1}`}
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
@@ -265,7 +269,7 @@ function Home() {
                         <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <img
                             src={`../../home_images/${item.endpoint.image}`}
-                            alt={`Image ${index + 1}`}
+                            alt={item.endpoint.image}
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
                           <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">

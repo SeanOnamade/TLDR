@@ -20,6 +20,15 @@ import {
 
 import { topicsOptions, sourceOptions } from "@/constants/preferences";
 
+const languageOptions = [
+  "English", "Spanish", "French", "Chinese", "Japanese", "Hindi", "Arabic", "Portuguese",
+  "Russian", "German", "Italian", "Korean", "Bulgarian", "Croatian", "Czech", "Danish",
+  "Dutch", "Swedish", "Norwegian", "Finnish", "Polish", "Bengali", "Greek", "Thai",
+  "Vietnamese", "Indonesian", "Hebrew", "Turkish", "Ukrainian", "Romanian", "Slovak",
+  "Slovenian", "Serbian", "Bosnian", "Hungarian", "Tagalog", "Urdu", "Swahili", "Amharic",
+  "Somali", "Haitian Creole", "Lao", "Khmer", "Burmese", "Sinhalese", "Malay", "Macedonian"
+];
+
 function Preferences() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -29,6 +38,7 @@ function Preferences() {
   const [sources, setSources] = useState([]);
   const [newPassword, setNewPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
+  const [subscribed, setSubscribed] = useState(true);
 
   const user = auth.currentUser; // Get authenticated user
   const [initialValues, setInitialValues] = useState({
@@ -38,6 +48,7 @@ function Preferences() {
     language: "",
     topics: [],
     sources: [],
+    subscription: true,
   });
 
   useEffect(() => {
@@ -55,12 +66,14 @@ function Preferences() {
             language: userData.language || "",
             topics: userData.topics || [],
             sources: userData.sources || [],
+            subscription: userData.subscription || true,
           });
           setFirstName(userData.firstName || "");
           setLastName(userData.lastName || "");
           setLanguage(userData.language || "");
           setTopics(userData.topics || []);
           setSources(userData.sources || []);
+          setSubscribed(userData.subscribed ?? true);
         }
       };
       fetchUserData();
@@ -107,9 +120,12 @@ function Preferences() {
           {
             firstName,
             lastName,
-            language,
+            language: language.toLowerCase(),
+            email,
             topics,
             sources,
+            subscribed,
+            onboarded: true,
           },
           { merge: true }
         );
@@ -127,6 +143,7 @@ function Preferences() {
           alert("Password updated successfully.");
         }
         alert("Preferences saved!");
+        window.location.reload();
       } catch (error) {
         if (error.code === "auth/wrong-password") {
           alert("Incorrect current password. Please try again.");
@@ -227,10 +244,10 @@ function Preferences() {
                 onChange={(e) => setLanguage(e.target.value)}
                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900"
               >
-                <option value="">Select Language</option>
-                <option>English</option>
-                <option>Spanish</option>
-                <option>Mandarin</option>
+        <option value="">Select Language</option>
+        {languageOptions.map((lang) => (
+          <option key={lang} value={lang}>{lang}</option>
+        ))}
               </select>
             </div>
           </div>
@@ -340,6 +357,20 @@ function Preferences() {
             </NavigationMenuList>
           </NavigationMenu>
         </div>
+
+              <div className="mt-6 flex items-center">
+        <input
+          id="subscribe"
+          type="checkbox"
+          checked={subscribed}
+          onChange={() => setSubscribed(!subscribed)}
+          className="w-5 h-5 text-indigo-600 bg-gray-900 border-gray-300 rounded focus:ring-indigo-500"
+        />
+        <label htmlFor="subscribe" className="ml-3 text-sm font-medium text-white">
+          Subscribe to emails
+        </label>
+      </div>
+
       </div>
 
       <div className="mt-6 flex items-center justify-end gap-x-6 pb-12">
