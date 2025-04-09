@@ -23,6 +23,7 @@ function Home() {
   const [userTopics, setUserTopics] = useState([]);
   const [groupedData, setGroupedData] = useState([]);
   const [loadingTopics, setLoadingTopics] = useState(false);
+  const [preferredLanguage, setPreferredLanguage] = useState(null);
 
   const handleScroll = () => {
     setIsShrunk(window.scrollY > 40);
@@ -33,21 +34,7 @@ function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Fetch primary article
-  useEffect(() => {
-    axios
-      .get("https://newsapi-r8fr.onrender.com/wired-pick-of-day")
-      .then((response) => {
-        setData(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
-  }, []);
-
-  // Fetch user's preferred sources and topics from Firebase
+  // Fetch user preferences (language and sources) from Firebase
   useEffect(() => {
     const fetchUserPreferences = async () => {
       try {
@@ -55,6 +42,7 @@ function Home() {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const userData = userDoc.data();
+          setPreferredLanguage(userData.language);
           setEndpoints(userData.sources || []);
           setUserTopics(userData.topics || []);
         }
@@ -65,12 +53,28 @@ function Home() {
     fetchUserPreferences();
   }, []);
 
-  // Fetch individual source data once endpoints are loaded
+  // Fetch a primary article (wired-pick-of-day)
   useEffect(() => {
-    if (endpoints.length > 0) {
+    if (preferredLanguage) {
+      axios
+        .get(`https://newsapi-r8fr.onrender.com/wired-pick-of-day?language=${preferredLanguage}`)
+        .then((response) => {
+          setData(response.data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err);
+          setLoading(false);
+        });
+    }
+  }, [preferredLanguage]);
+
+  // Once endpoints are loaded, fetch each source's data
+  useEffect(() => {
+    if (endpoints.length > 0 && preferredLanguage) {
       Promise.all(
         endpoints.map(({ endpoint }) =>
-          axios.get(`https://newsapi-r8fr.onrender.com${endpoint}`)
+          axios.get(`https://newsapi-r8fr.onrender.com${endpoint}?language=${preferredLanguage}`)
         )
       )
         .then((responses) => {
@@ -84,7 +88,7 @@ function Home() {
           console.error(err);
         });
     }
-  }, [endpoints]);
+  }, [endpoints, preferredLanguage]);
 
   // Helper function to determine source image from article link
   const getSourceImage = (articleLink) => {
@@ -256,8 +260,8 @@ function Home() {
                       <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
                         <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <img
-                            src={`../../home_images/${item.endpoint.image}`}
-                            alt={item.endpoint.image}
+                            src={`../../home_images/${item.endpoint.image}`} // !! THIS CAUSES A GLITCH WHERE IT TRIES TO ACCESS IMAGES THAT DON'T EXIST
+                            alt={`Image ${index + 1}`}
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
                           <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">

@@ -40,3 +40,6 @@ ml/sev/cert.pem
 ml/sev/key.pem
 ml/sev/node_modules/
 ml/sev/package-lock.json
+
+# for newsletter stuff; Sean has it
+serviceAccountKey.json
