@@ -1,10 +1,9 @@
 export const topicsOptions = [
-  "Business",
+  "Finance",
   "Tech",
   "Fashion",
   "World",
   "Entertainment",
-  "Finance"
 ];
 
 export const sourceOptions = [
