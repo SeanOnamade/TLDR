@@ -198,7 +198,7 @@ function Home() {
                 <h1 className="text-white text-2xl font-bold mb-4 line-clamp-[1]">
                   {data && data.article_title}
                 </h1>
-                <div className="text-white text-[16px] line-clamp-[10] mb-4">
+                <div className="text-white text-[16px] overflow-y-auto max-h-[270px] mb-4 custom-scrollbar pr-2">
                   {data &&
                     data.article_text.split("\n").map((line, index) => {
                       const bulletLine = line
@@ -258,16 +258,16 @@ function Home() {
                   >
                     <div className="w-full py-4">
                       <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
-                        <CardContent className="flex-column h-full items-center justify-center p-1.5">
+                        <CardContent className="flex-column h-full items-center justify-center p-1.5 pr-0">
                           <img
                             src={`../../home_images/${item.endpoint.image}`} // !! THIS CAUSES A GLITCH WHERE IT TRIES TO ACCESS IMAGES THAT DON'T EXIST
                             alt={`Image ${index + 1}`}
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
-                          <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">
+                          <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1] pr-2">
                             {item.data && item.data.article_title}
                           </h1>
-                          <div className="text-white text-[12px] line-clamp-[5] m-1 mb-0">
+                          <div className="text-white text-[12px] overflow-y-auto max-h-[90px] m-1 mb-0 custom-scrollbar pr-2">
                             {item.data?.article_text
                               ? item.data.article_text
                                   .split("\n")
@@ -301,7 +301,9 @@ function Home() {
         {/* Grouped Topics Section using user-selected topics */}
         {groupedData.map((group, index) => (
           <div key={index}>
-            <div className="font-bold text-white mt-8">{group.topic.toUpperCase()}</div>
+            <div className="font-bold text-white mt-8">
+              {group.topic.toUpperCase()}
+            </div>
             <div className="h-[2px] w-full bg-[#ffffff7e]"></div>
             <section className="flex justify-center">
               <Carousel opts={{ align: "start" }} className="w-full">
@@ -332,7 +334,7 @@ function Home() {
                       >
                         <div className="w-full py-4">
                           <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
-                            <CardContent className="flex-column h-full items-center justify-center p-1.5">
+                            <CardContent className="flex-column h-full items-center justify-center p-1.5 pr-0">
                               <img
                                 src={`../../home_images/${getSourceImage(
                                   article.article_link
@@ -340,10 +342,10 @@ function Home() {
                                 alt={getSourceImage(article.article_link)}
                                 className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                               />
-                              <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1]">
+                              <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1] pr-2">
                                 {article.article_title}
                               </h1>
-                              <div className="text-white text-[12px] line-clamp-[5] m-1 mb-0">
+                              <div className="text-white text-[12px] overflow-y-auto max-h-[90px] m-1 mb-0 custom-scrollbar pr-2">
                                 {article.article_text
                                   .split("\n")
                                   .map((line, i) => {
