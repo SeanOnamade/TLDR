@@ -180,7 +180,7 @@ function Home() {
               alt="Wired"
               className="object-cover w-full md:w-[50%] h-full rounded-[10px]"
             />
-            <div className="w-full h-full p-4">
+            <div className="w-full h-full p-4 pr-1">
               {loading && (
                 <div>
                   <Skeleton className="h-8 w-[80%] mb-5" />
@@ -198,7 +198,7 @@ function Home() {
                 <h1 className="text-white text-2xl font-bold mb-4 line-clamp-[1]">
                   {data && data.article_title}
                 </h1>
-                <div className="text-white text-[16px] overflow-y-auto max-h-[270px] mb-4 custom-scrollbar pr-2">
+                <div className="text-white text-[16px] overflow-y-auto max-h-[270px] mb-4 custom-scrollbar pr-3">
                   {data &&
                     data.article_text.split("\n").map((line, index) => {
                       const bulletLine = line
@@ -267,7 +267,7 @@ function Home() {
                           <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1] pr-2">
                             {item.data && item.data.article_title}
                           </h1>
-                          <div className="text-white text-[12px] overflow-y-auto max-h-[90px] m-1 mb-0 custom-scrollbar pr-2">
+                          <div className="text-white text-[12px] overflow-y-auto max-h-[90px] m-1 mb-0 custom-scrollbar pr-3">
                             {item.data?.article_text
                               ? item.data.article_text
                                   .split("\n")
@@ -345,7 +345,7 @@ function Home() {
                               <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1] pr-2">
                                 {article.article_title}
                               </h1>
-                              <div className="text-white text-[12px] overflow-y-auto max-h-[90px] m-1 mb-0 custom-scrollbar pr-2">
+                              <div className="text-white text-[12px] overflow-y-auto max-h-[90px] m-1 mb-0 custom-scrollbar pr-3">
                                 {article.article_text
                                   .split("\n")
                                   .map((line, i) => {
