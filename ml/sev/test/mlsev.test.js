@@ -32,7 +32,6 @@ const HTTPS_SYS_ENVS = {
  */
 describe('DemoDay1 Tests', () => {
     let server;
-    let connections = new Set();
 
     beforeAll(() => {
         return new Promise((resolve) => {
@@ -41,12 +40,6 @@ describe('DemoDay1 Tests', () => {
                     console.log('Test server started on port 7051');
                     resolve();
                 });
-
-            // Track all connections
-            server.on('connection', (connection) => {
-                connections.add(connection);
-                connection.on('close', () => connections.delete(connection));
-            });
         });
     });
 
