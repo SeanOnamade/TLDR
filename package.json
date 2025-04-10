@@ -75,10 +75,5 @@
     "shadcn-ui": "^0.9.4",
     "tailwindcss": "^3.4.17",
     "vite": "^6.0.11"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "verbose": true,
-    "setupFilesAfterEnv": ["./jest.setup.js"]
   }
 }
