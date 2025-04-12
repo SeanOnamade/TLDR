@@ -1,15 +1,14 @@
 import nltk
 import os
+import hdbscan
+import numpy as np
 local_punkt_path = os.path.join(os.path.dirname(__file__), 'punkt')
 if local_punkt_path not in nltk.data.path:
     nltk.data.path.insert(0, local_punkt_path)
 from nltk.tokenize import sent_tokenize
 from sentence_transformers import SentenceTransformer
 from umap import UMAP
-import numpy as np
-import hdbscan
-from collections import Counter
-import matplotlib.pyplot as plt
+from dataclasses import dataclass, field
 
 '''
 1) take in a article ✅
@@ -21,6 +20,14 @@ import matplotlib.pyplot as plt
 7) Return the sentences
 '''
 
+
+@dataclass
+class cluster:
+    label: int
+    center: np.ndarray = field(default_factory=lambda: np.array([]))
+    contents: list[np.ndarray] = field(default_factory=list)
+    indices: list[int] = field(default_factory=list)
+    
 class preProcessor:
     '''
     @breif: initializer for the preProcess class. This class essentially takes in the data (in the production case,
@@ -91,6 +98,7 @@ class preProcessor:
               - cluster_labels (np.array): Array of cluster labels for each point (-1 indicates noise).
     '''
     def HDBSCAN(self, space: np.array) -> tuple:
+        clusterList = []
         if space.shape[0] < 2:
             raise ValueError(f"Input space has {space.shape[0]} points. At least 2 points are required for clustering.")
         
@@ -99,34 +107,62 @@ class preProcessor:
             min_samples=1,
             cluster_selection_method='leaf',
             cluster_selection_epsilon=0.05,
-            allow_single_cluster=False        # Prevent one big cluster
+            allow_single_cluster=False
         )
         
         labels = clusterer.fit_predict(space)
         num_clusters = len(set(labels)) - (1 if -1 in labels else 0)
         print(f"HDBSCAN identified {num_clusters} clusters")
-        return num_clusters, labels
-    '''
-    @brief: This function identifies representative sentences for each cluster by finding the vector closest to the cluster mean in the transformed space.
-
-    @params: space -> np.array, this is the transformed vector space (e.g., from UMAP) with shape (n_samples, n_features)
-    @params: labels -> np.array, this is the array of cluster labels assigned by HDBSCAN, where -1 indicates noise
-    @returns: list -> list of tuples, each containing (cluster_label, representative_sentence)
-    '''
-    def get_cluster_representatives(self, space: np.array, labels: np.array) -> list:
-        unique_labels = set(labels) - {-1}
-        representatives = []
         
+        unique_labels = set(labels) - {-1}
         for label in unique_labels:
+            indices = np.where(labels == label)[0]
             cluster_points = space[labels == label]
             cluster_mean = np.mean(cluster_points, axis=0)
-            distances = np.linalg.norm(cluster_points - cluster_mean, axis=1)
-            closest_idx = np.argmin(distances)
-            global_idx = np.where(labels == label)[0][closest_idx]
-            representatives.append((label, self.sentences[global_idx]))
+            clusterList.append(cluster(
+                label=label,
+                center=cluster_mean,
+                contents=[cluster_points[i] for i in range(cluster_points.shape[0])],
+                indices=indices.tolist()
+            ))
+        return num_clusters, labels, clusterList
+    
+    '''
+    @brief: This function is the one that gets the mean from the
+            center of the cluster and then find the closest vector to it in latent space via
+            cosine similarity
         
-        return representatives
+    @params: clusterList -> @datatype: cluster, the cluster in latent space
+    @returns: np.ndarray, this is the sentence embedding that is closest to the mean of the cluster
+    '''
+    def extract_vector(self, clusterList) -> list[np.ndarray]:
+        
+        extractedFeats = []
+        extractedSentences = []
+        for cluster in clusterList:
+            center = cluster.center
+            contents = cluster.contents
+            indices = cluster.indices
+            
+            if not contents or len(contents) == 0:
+                continue
 
+            # iter over points and compute cosine distance and save in ds
+            cos_sims = []
+            for vector in contents:
+                norm = np.linalg.norm(vector) * np.linalg.norm(center)
+                norm = 1e-10 if norm == 0 else norm
+                cos_sim = np.dot(vector, center) / norm
+                cos_sims.append(cos_sim)
+            
+            # after you compute cosine distance for each point find max
+            closest_idx = np.argmax(cos_sims)
+            extractedFeats.append(contents[closest_idx])
+            extractedSentences.append(self.sentences[indices[closest_idx]])
+        return extractedFeats, extractedSentences
+        
+        
+        
 def main():
     with open("story.txt", 'r', encoding='utf-8') as file:
         input_data = file.read()
@@ -137,14 +173,16 @@ def main():
     try:
         transformed_space = encoding.U_MAP()
         print("UMAP transformation successful.")
-        num_clusters, cluster_labels = encoding.HDBSCAN(transformed_space)
+        num_clusters, cluster_labels, cluster_list = encoding.HDBSCAN(transformed_space)
+        cluster_vecs, cluster_sentences = encoding.extract_vector(cluster_list)
         print(f"Number of clusters: {num_clusters}")
         print(f"Cluster labels: {cluster_labels}")
+        print(f"Cluster Vecs best: {cluster_vecs}")
         
-        # Visualize for debugging
-        plt.scatter(transformed_space[:, 0], transformed_space[:, 1], c=cluster_labels, cmap='Spectral')
-        plt.title("HDBSCAN Clusters")
-        plt.show()
+        x = 1
+        for sentence in cluster_sentences:
+            print(f"Sentence {x}: {sentence}")
+            x += 1
         
     except ValueError as e:
         print(f"Error: {e}")
