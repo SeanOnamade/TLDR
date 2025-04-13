@@ -11,8 +11,12 @@ import {
 import axios from "axios";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { readMoreText, headingText } from "@/constants/preferences";
+import { topicTranslations } from "@/constants/topicTranslations";
+import { useTheme } from "@/contexts/ThemeContext";
 
 function Home() {
+  const { isDark } = useTheme();
   const [isShrunk, setIsShrunk] = useState(false);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -141,7 +145,9 @@ function Home() {
         userTopics.map((topic) => {
           const endpoint = `/${topic.toLowerCase()}-news`;
           return axios
-            .get(`https://newsapi-r8fr.onrender.com${endpoint}`)
+            .get(
+              `https://newsapi-r8fr.onrender.com${endpoint}?language=${preferredLanguage}`
+            )
             .then((response) => ({ topic, articles: response.data }))
             .catch((err) => {
               console.error(`Error fetching ${topic} news:`, err);
@@ -166,14 +172,20 @@ function Home() {
             isShrunk ? "opacity-0" : "opacity-100"
           }`}
         >
-          <span className="text-white">FOCUS.</span>
+          <span className={isDark ? "text-white" : "text-gray-900"}>
+            FOCUS.
+          </span>
           <span className="text-[#F51555]">FEED</span>
         </h1>
       </header>
 
       <main className="flex-col justify-center px-[50px]">
         {/* Primary Article Section */}
-        <section className="h-auto md:h-[390px] bg-[#FFFFFF1A] rounded-[15px] shadow-lg mb-5">
+        <section
+          className={`h-auto md:h-[390px] ${
+            isDark ? "bg-[#FFFFFF1A]" : "bg-white"
+          } rounded-[15px] shadow-lg mb-5`}
+        >
           <div className="flex flex-col md:flex-row w-full h-full p-1.5">
             <img
               src="../../home_images/Wired.webp"
@@ -195,10 +207,18 @@ function Home() {
                   loading ? "opacity-0" : "opacity-100"
                 }`}
               >
-                <h1 className="text-white text-2xl font-bold mb-4 line-clamp-[1]">
+                <h1
+                  className={`${
+                    isDark ? "text-white" : "text-gray-900"
+                  } text-2xl font-bold mb-4 line-clamp-[1]`}
+                >
                   {data && data.article_title}
                 </h1>
-                <div className="text-white text-[16px] overflow-y-auto max-h-[270px] mb-4 custom-scrollbar pr-3">
+                <div
+                  className={`${
+                    isDark ? "text-white" : "text-gray-700"
+                  } text-[16px] overflow-y-auto max-h-[270px] mb-4 custom-scrollbar pr-3`}
+                >
                   {data &&
                     data.article_text.split("\n").map((line, index) => {
                       const bulletLine = line
@@ -220,15 +240,31 @@ function Home() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Read more {">"}
+                {preferredLanguage
+                  ? readMoreText[preferredLanguage.toLowerCase()] ||
+                    readMoreText.english
+                  : readMoreText.english}
               </a>
             </div>
           </div>
         </section>
 
         {/* Trending Section using individual sources */}
-        <div className="font-bold text-white mt-12">YOUR FEED</div>
-        <div className="h-[2px] w-full bg-[#ffffff7e]"></div>
+        <div
+          className={`font-bold ${
+            isDark ? "text-white" : "text-gray-900"
+          } mt-12`}
+        >
+          {preferredLanguage
+            ? headingText[preferredLanguage.toLowerCase()]?.yourFeed ||
+              headingText.english.yourFeed
+            : headingText.english.yourFeed}
+        </div>
+        <div
+          className={`h-[2px] w-full ${
+            isDark ? "bg-[#ffffff7e]" : "bg-gray-300"
+          }`}
+        ></div>
         <section className="flex justify-center">
           <Carousel opts={{ align: "start" }} className="w-full">
             <CarouselContent>
@@ -239,7 +275,11 @@ function Home() {
                     className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                   >
                     <div className="w-full py-4">
-                      <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
+                      <Card
+                        className={`h-[300px] ${
+                          isDark ? "bg-[#FFFFFF1A]" : "bg-white"
+                        } border-none shadow-lg`}
+                      >
                         <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <Skeleton className="h-[50%] w-full mb-2 rounded-[10px]" />
                           <Skeleton className="h-[30px] w-full mb-1" />
@@ -257,17 +297,29 @@ function Home() {
                     className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                   >
                     <div className="w-full py-4">
-                      <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
-                        <CardContent className="flex-column h-full items-center justify-center p-1.5 pr-0">
+                      <Card
+                        className={`h-[300px] ${
+                          isDark ? "bg-[#FFFFFF1A]" : "bg-white"
+                        } border-none shadow-lg`}
+                      >
+                        <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <img
                             src={`../../home_images/${item.endpoint.image}`} // !! THIS CAUSES A GLITCH WHERE IT TRIES TO ACCESS IMAGES THAT DON'T EXIST
                             alt={`Image ${index + 1}`}
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />
-                          <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1] pr-2">
+                          <h1
+                            className={`${
+                              isDark ? "text-white" : "text-gray-900"
+                            } text-[13px] font-bold ml-1 line-clamp-[1] pr-2`}
+                          >
                             {item.data && item.data.article_title}
                           </h1>
-                          <div className="text-white text-[12px] overflow-y-auto max-h-[90px] m-1 mb-0 custom-scrollbar pr-3">
+                          <div
+                            className={`${
+                              isDark ? "text-white" : "text-gray-900"
+                            } text-[12px] overflow-y-auto max-h-[90px] m-1 mb-0 custom-scrollbar pr-3`}
+                          >
                             {item.data?.article_text
                               ? item.data.article_text
                                   .split("\n")
@@ -285,7 +337,10 @@ function Home() {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            Read more {">"}
+                            {preferredLanguage
+                              ? readMoreText[preferredLanguage.toLowerCase()] ||
+                                readMoreText.english
+                              : readMoreText.english}
                           </a>
                         </CardContent>
                       </Card>
@@ -301,10 +356,22 @@ function Home() {
         {/* Grouped Topics Section using user-selected topics */}
         {groupedData.map((group, index) => (
           <div key={index}>
-            <div className="font-bold text-white mt-8">
-              {group.topic.toUpperCase()}
+            <div
+              className={`font-bold ${
+                isDark ? "text-white" : "text-gray-900"
+              } mt-8`}
+            >
+              {preferredLanguage
+                ? topicTranslations[preferredLanguage.toLowerCase()]?.[
+                    group.topic.toLowerCase()
+                  ] || topicTranslations.english[group.topic.toLowerCase()]
+                : topicTranslations.english[group.topic.toLowerCase()]}
             </div>
-            <div className="h-[2px] w-full bg-[#ffffff7e]"></div>
+            <div
+              className={`h-[2px] w-full ${
+                isDark ? "bg-[#ffffff7e]" : "bg-gray-300"
+              }`}
+            ></div>
             <section className="flex justify-center">
               <Carousel opts={{ align: "start" }} className="w-full">
                 <CarouselContent>
@@ -315,7 +382,11 @@ function Home() {
                         className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                       >
                         <div className="w-full py-4">
-                          <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
+                          <Card
+                            className={`h-[300px] ${
+                              isDark ? "bg-[#FFFFFF1A]" : "bg-white"
+                            } border-none shadow-lg`}
+                          >
                             <CardContent className="flex-column h-full items-center justify-center p-1.5">
                               <Skeleton className="h-[50%] w-full mb-2 rounded-[10px]" />
                               <Skeleton className="h-[30px] w-full mb-1" />
@@ -333,8 +404,12 @@ function Home() {
                         className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                       >
                         <div className="w-full py-4">
-                          <Card className="h-[300px] bg-[#FFFFFF1A] border-none shadow-lg">
-                            <CardContent className="flex-column h-full items-center justify-center p-1.5 pr-0">
+                          <Card
+                            className={`h-[300px] ${
+                              isDark ? "bg-[#FFFFFF1A]" : "bg-white"
+                            } border-none shadow-lg`}
+                          >
+                            <CardContent className="flex-column h-full items-center justify-center p-1.5">
                               <img
                                 src={`../../home_images/${getSourceImage(
                                   article.article_link
@@ -342,10 +417,18 @@ function Home() {
                                 alt={getSourceImage(article.article_link)}
                                 className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                               />
-                              <h1 className="text-white text-[13px] font-bold ml-1 line-clamp-[1] pr-2">
+                              <h1
+                                className={`${
+                                  isDark ? "text-white" : "text-gray-900"
+                                } text-[13px] font-bold ml-1 line-clamp-[1] pr-2`}
+                              >
                                 {article.article_title}
                               </h1>
-                              <div className="text-white text-[12px] overflow-y-auto max-h-[90px] m-1 mb-0 custom-scrollbar pr-3">
+                              <div
+                                className={`${
+                                  isDark ? "text-white" : "text-gray-900"
+                                } text-[12px] overflow-y-auto max-h-[90px] m-1 mb-0 custom-scrollbar pr-3`}
+                              >
                                 {article.article_text
                                   .split("\n")
                                   .map((line, i) => {
@@ -361,7 +444,11 @@ function Home() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                Read more {">"}
+                                {preferredLanguage
+                                  ? readMoreText[
+                                      preferredLanguage.toLowerCase()
+                                    ] || readMoreText.english
+                                  : readMoreText.english}
                               </a>
                             </CardContent>
                           </Card>
@@ -369,7 +456,16 @@ function Home() {
                       </CarouselItem>
                     ))
                   ) : (
-                    <p className="text-white">No articles found.</p>
+                    <p
+                      className={`${
+                        isDark ? "text-white" : "text-gray-900"
+                      } p-4`}
+                    >
+                      {preferredLanguage
+                        ? headingText[preferredLanguage.toLowerCase()]
+                            ?.noArticles || headingText.english.noArticles
+                        : headingText.english.noArticles}
+                    </p>
                   )}
                 </CarouselContent>
                 <CarouselPrevious variant={"null"} />
