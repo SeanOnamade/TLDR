@@ -11,9 +11,9 @@ from umap import UMAP
 from dataclasses import dataclass, field
 
 '''
-1) take in a article ✅
-2) Convert it to vector space using sBERT ✅
-3) then run a U-MAP on the vector space to make latent space ✅
+1) take in a article
+2) Convert it to vector space using sBERT
+3) then run a U-MAP on the vector space to make latent space
 4) run a HDBSCAN to create clusters in the data based on density
 5) Find the means of each cluster, and then take the vector closest to it
 6) convert each vector back into a sentence
@@ -28,7 +28,7 @@ class cluster:
     contents: list[np.ndarray] = field(default_factory=list)
     indices: list[int] = field(default_factory=list)
     
-class preProcessor:
+class FeatureExtractionModel:
     '''
     @breif: initializer for the preProcess class. This class essentially takes in the data (in the production case,
             the data is text representing a news article coming in a JSON format from the frontend) and then cleans it up
@@ -160,32 +160,3 @@ class preProcessor:
             extractedFeats.append(contents[closest_idx])
             extractedSentences.append(self.sentences[indices[closest_idx]])
         return extractedFeats, extractedSentences
-        
-        
-        
-def main():
-    with open("story.txt", 'r', encoding='utf-8') as file:
-        input_data = file.read()
-    
-    encoding = preProcessor()
-    encoding.vector_embedding(input_data)
-    
-    try:
-        transformed_space = encoding.U_MAP()
-        print("UMAP transformation successful.")
-        num_clusters, cluster_labels, cluster_list = encoding.HDBSCAN(transformed_space)
-        cluster_vecs, cluster_sentences = encoding.extract_vector(cluster_list)
-        print(f"Number of clusters: {num_clusters}")
-        print(f"Cluster labels: {cluster_labels}")
-        print(f"Cluster Vecs best: {cluster_vecs}")
-        
-        x = 1
-        for sentence in cluster_sentences:
-            print(f"Sentence {x}: {sentence}")
-            x += 1
-        
-    except ValueError as e:
-        print(f"Error: {e}")
-
-if __name__ == "__main__":
-    main()
