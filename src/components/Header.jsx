@@ -82,9 +82,11 @@ const Header = memo(() => {
           : `shadow-lg ${isDark ? "bg-[#FFFFFF1A]" : "bg-[#0000001A]"} top-6`
       }`}
     >
-      <nav className={`leading-none flex gap-4 items-center w-[calc(100%-1.5rem)] h-full ${
-        isDark ? "text-white" : "text-gray-900"
-      }`}>
+      <nav
+        className={`leading-none flex gap-4 items-center w-[calc(100%-1.5rem)] h-full ${
+          isDark ? "text-white" : "text-gray-900"
+        }`}
+      >
         <div
           className={`flex items-center text-[22px] font-black transition-all duration-300 ease-in-out pointer-events-none select-none ${
             isShrunk ? "max-w-full opacity-100" : "max-w-0 opacity-0"
@@ -105,15 +107,18 @@ const Header = memo(() => {
         >
           <div className="flex gap-3 font-bold text-lg">
             <Link to="/" className={isDark ? "text-white" : "text-gray-900"}>
-              {preferredLanguage 
-                ? topicTranslations[preferredLanguage.toLowerCase()]?.home 
-                  || topicTranslations.english.home
+              {preferredLanguage
+                ? topicTranslations[preferredLanguage.toLowerCase()]?.home ||
+                  topicTranslations.english.home
                 : topicTranslations.english.home}
             </Link>
-            <Link to="/about" className={isDark ? "text-white" : "text-gray-900"}>
-              {preferredLanguage 
-                ? topicTranslations[preferredLanguage.toLowerCase()]?.about 
-                  || topicTranslations.english.about
+            <Link
+              to="/about"
+              className={isDark ? "text-white" : "text-gray-900"}
+            >
+              {preferredLanguage
+                ? topicTranslations[preferredLanguage.toLowerCase()]?.about ||
+                  topicTranslations.english.about
                 : topicTranslations.english.about}
             </Link>
           </div>
@@ -138,7 +143,9 @@ const Header = memo(() => {
                 aria-expanded={open}
                 aria-haspopup="true"
                 onClick={handleToggle}
-                className={`cursor-pointer ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`cursor-pointer ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
               >
                 <AccountCircleRoundedIcon
                   sx={{
@@ -151,7 +158,7 @@ const Header = memo(() => {
               </button>
               <div
                 className={`absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md ring-1 shadow-lg ring-black/5 focus:outline-none transition-all delay-100 duration-200 ease-in-out ${
-                  isDark ? "bg-gray-800" : "bg-white"
+                  isDark ? "bg-zinc-800" : "bg-white"
                 } ${
                   open
                     ? "opacity-100 pointer-events-auto scale-100"
@@ -166,7 +173,7 @@ const Header = memo(() => {
                     to="/preferences"
                     onClick={() => setOpen(false)}
                     className={`block px-4 py-2 text-sm hover:bg-opacity-20 hover:bg-gray-500 ${
-                      isDark ? "text-white" : "text-gray-900"
+                      isDark ? "text-white" : "text-gray-700"
                     }`}
                     role="menuitem"
                   >
