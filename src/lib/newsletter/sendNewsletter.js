@@ -25,28 +25,6 @@ async function fetchArticlesForUser(uid) {
     subscribed = true,
   } = userData;
 
-
-
-  // 3. For each source, call the API
-  // const requests = sources.map((src) => fetch.default(baseURL + src.endpoint));
-  // const responses = await Promise.all(requests);
-  // const dataArray = await Promise.all(responses.map((res) => res.json()));
-
-  // 4. Convert each response into a consistent shape
-
-  // const articles = dataArray.map((articleData, i) => ({
-  //   title: articleData.article_title,
-  //   summary: articleData.article_text,
-  //   link: articleData.article_link,
-  //   // image: sources[i].image
-  //   //   ? `https://placehold.co/600x400?text=Focus+Feed` // or your actual host
-  //   //   : getRandomImageUrl(),
-  //   image: getRandomImageUrl(),
-  //   // or if your source has a custom image, you can do:
-  //   // image: sources[i].image ? `https://example.com/home_images/${sources[i].image}` : getRandomImageUrl()
-  //   sourceName: sources[i].name, // e.g. "Economist"
-  // }));
-
   const articles = [];
 
   // 2. For each source, attempt to fetch the article

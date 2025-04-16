@@ -1,6 +1,7 @@
 // src/pages/Preferences.jsx
 import { cn } from "@/lib/utils";
 import React, { useState, useEffect } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 import { signOut } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -30,6 +31,7 @@ const languageOptions = [
 ];
 
 function Preferences() {
+  const { isDark } = useTheme();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -160,20 +162,20 @@ function Preferences() {
   return (
     <div className="flex-col px-[50px] space-y-12">
       <header className="text-center">
-        <h1 className="mt-4 mb-8 text-4xl font-black text-white">
-          PREFERENCES
+        <h1 className={`mt-4 mb-8 text-4xl font-black ${isDark ? "text-white" : "text-gray-900"}`}>
+      PREFERENCES
         </h1>
       </header>
 
-      <div className="border-b border-gray-900/10 pb-12">
-        <h2 className="font-semibold text-2xl text-white">
+      <div className="border-b border-gray-900/10 pb-0">
+        <h2 className={`font-semibold text-2xl ${isDark ? "text-white" : "text-gray-900"}`}>
           Personal Information
         </h2>
         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-3">
             <label
               htmlFor="first-name"
-              className="block text-sm/6 font-medium text-white"
+              className={`block text-sm/6 font-medium ${isDark ? "text-white" : "text-gray-900"}`}
             >
               First name
             </label>
@@ -193,7 +195,7 @@ function Preferences() {
           <div className="sm:col-span-3">
             <label
               htmlFor="last-name"
-              className="block text-sm/6 font-medium text-white"
+              className={`block text-sm/6 font-medium ${isDark ? "text-white" : "text-gray-900"}`}
             >
               Last name
             </label>
@@ -213,7 +215,7 @@ function Preferences() {
           <div className="sm:col-span-3">
             <label
               htmlFor="email"
-              className="block text-sm/6 font-medium text-white"
+              className={`block text-sm/6 font-medium ${isDark ? "text-white" : "text-gray-900"}`}
             >
               Email address
             </label>
@@ -233,7 +235,7 @@ function Preferences() {
           <div className="sm:col-span-3">
             <label
               htmlFor="language"
-              className="block text-sm/6 font-medium text-white"
+              className={`block text-sm/6 font-medium ${isDark ? "text-white" : "text-gray-900"}`}
             >
               Language
             </label>
@@ -253,14 +255,14 @@ function Preferences() {
           </div>
           {/* Change Password Section */}
           <div className="col-span-full">
-            <h2 className="text-white text-2xl font-semibold mb-4">
+          <h2 className={`font-semibold text-2xl mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>
               Change Password
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-8">
               <div className="sm:col-span-3">
                 <label
                   htmlFor="current-password"
-                  className="block text-sm font-medium text-white"
+                  className={`block text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}
                 >
                   Current Password
                 </label>
@@ -278,7 +280,7 @@ function Preferences() {
               <div className="sm:col-span-3">
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-white"
+                  className={`block text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}
                 >
                   New Password
                 </label>
@@ -299,9 +301,9 @@ function Preferences() {
         </div>
       </div>
 
-      <div className="border-b border-gray-900/10 pb-12">
-        <h2 className="font-semibold text-2xl text-white">News Preferences</h2>
-        <div className="mt-10">
+      <div className="border-b border-gray-900/10 pb-8" style={{marginTop: "36px"}}>
+      <h2 className={`font-semibold text-2xl ${isDark ? "text-white" : "text-gray-900"}`}>News Preferences</h2>
+        <div className="mt-4">
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
@@ -364,9 +366,9 @@ function Preferences() {
           type="checkbox"
           checked={subscribed}
           onChange={() => setSubscribed(!subscribed)}
-          className="w-5 h-5 text-indigo-600 bg-gray-900 border-gray-300 rounded focus:ring-indigo-500"
+          className="w-5 h-5 text-indigo-600 bg-gray-900 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer"
         />
-        <label htmlFor="subscribe" className="ml-3 text-sm font-medium text-white">
+        <label htmlFor="subscribe" className={`ml-3 text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
           Subscribe to emails
         </label>
       </div>
