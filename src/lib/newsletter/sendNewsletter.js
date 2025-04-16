@@ -59,13 +59,27 @@ async function fetchArticlesForUser(uid) {
         );
         continue;
       }
+      let generatedImageUrl = `https://focusfeed.org/home_images/${src.name.replace(/\s+/g, '')}.webp`;
+
+      // **###### Fix 2: Check if the generatedImageUrl exists using a HEAD request. Use random image if it fails.**
+      let imageUrl = generatedImageUrl;
+      try {
+        const headRes = await fetch.default(generatedImageUrl, { method: 'HEAD' });
+        if (!headRes.ok) {
+          throw new Error('Image not found');
+        }
+      } catch (err) {
+        console.log(`Image not found at ${generatedImageUrl}, using random fallback.`);
+        imageUrl = getRandomImageUrl();
+      }
 
       // If all good, push a cleaned-up object
       articles.push({
         title: articleData.article_title,
         summary: articleData.article_text,
         link: articleData.article_link,
-        image: getRandomImageUrl(), // or your logic
+        // image: getRandomImageUrl(), // or your logic
+        image: imageUrl,
         sourceName: src.name,
       });
     } catch (err) {
@@ -154,6 +168,7 @@ async function sendNewsletter(uid) {
   console.log(`✅ Newsletter sent successfully to ${firstName} (${email})!`);
 }
 
+// to try out, run: node src/lib/newsletter/sendNewsletter.js
 // If you run this file directly with `node`, call sendNewsletter()
 if (require.main === module) {
   const testUID = "P3yrTbexu3fQqcNJDdBsxktQ8ev1";
