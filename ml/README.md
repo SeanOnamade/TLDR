@@ -50,7 +50,8 @@ Before starting, ensure you have the following installed on your machine:
 To run premade testing, run:
 
 ```bash
-npm run dd1_TESTS
+node index.js
+curl -X POST http://localhost:<local port>/process -H "Content-Type: application/json" --data @../data.json
 ```
 
 ----------
