@@ -10,8 +10,8 @@ console.log("🕒 Cron job initialized... Waiting to send emails.");
 // cron.schedule("30 21 * * 4", async () => {
 
 // temp test
-// cron.schedule("0 14 1-31/2 * *", async () => {
-cron.schedule("10 20 2-30/2 * *", async () => {
+cron.schedule("0 14 1-31/2 * *", async () => {
+// cron.schedule("10 20 2-30/2 * *", async () => {
   try {
     console.log("Tri-weekly newsletter cron started, every other day at 9am...");
 
