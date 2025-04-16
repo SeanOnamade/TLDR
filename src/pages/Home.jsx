@@ -134,7 +134,7 @@ function Home() {
     } catch (e) {
       console.error("Error parsing URL", e);
     }
-    return "default.webp"; // fallback image if no match
+    return "Forbes.webp"; // fallback image if no match
   };
 
   // Fetch grouped news for each user-selected topic
@@ -304,7 +304,8 @@ function Home() {
                       >
                         <CardContent className="flex-column h-full items-center justify-center p-1.5">
                           <img
-                            src={`../../home_images/${item.endpoint.image}`} // !! THIS CAUSES A GLITCH WHERE IT TRIES TO ACCESS IMAGES THAT DON'T EXIST
+                            src={`../../home_images/${getSourceImage(item.data.article_link)}`}
+                            // !! THIS CAUSES A GLITCH WHERE IT TRIES TO ACCESS IMAGES THAT DON'T EXIST
                             alt={`Image ${index + 1}`}
                             className="object-cover w-full h-[50%] rounded-[10px] mb-2"
                           />

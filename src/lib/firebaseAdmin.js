@@ -2,9 +2,9 @@
 require("dotenv").config();
 const admin = require("firebase-admin");
 let serviceAccount;
-if (process.env.SERVICE_ACCOUNT_KEY_JSON) {
+if (process.env.SERVICE_ACCOUNT_JSON_KEY) {
   // Production or local with inline JSON
-  serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY_JSON);
+  serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_JSON_KEY);
 } else {
   // Fallback: read local file
   serviceAccount = require("../../serviceAccountKey.json");

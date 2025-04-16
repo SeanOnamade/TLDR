@@ -25,28 +25,6 @@ async function fetchArticlesForUser(uid) {
     subscribed = true,
   } = userData;
 
-
-
-  // 3. For each source, call the API
-  // const requests = sources.map((src) => fetch.default(baseURL + src.endpoint));
-  // const responses = await Promise.all(requests);
-  // const dataArray = await Promise.all(responses.map((res) => res.json()));
-
-  // 4. Convert each response into a consistent shape
-
-  // const articles = dataArray.map((articleData, i) => ({
-  //   title: articleData.article_title,
-  //   summary: articleData.article_text,
-  //   link: articleData.article_link,
-  //   // image: sources[i].image
-  //   //   ? `https://placehold.co/600x400?text=Focus+Feed` // or your actual host
-  //   //   : getRandomImageUrl(),
-  //   image: getRandomImageUrl(),
-  //   // or if your source has a custom image, you can do:
-  //   // image: sources[i].image ? `https://example.com/home_images/${sources[i].image}` : getRandomImageUrl()
-  //   sourceName: sources[i].name, // e.g. "Economist"
-  // }));
-
   const articles = [];
 
   // 2. For each source, attempt to fetch the article
@@ -81,13 +59,27 @@ async function fetchArticlesForUser(uid) {
         );
         continue;
       }
+      let generatedImageUrl = `https://focusfeed.org/home_images/${src.name.replace(/\s+/g, '')}.webp`;
+
+      // **###### Fix 2: Check if the generatedImageUrl exists using a HEAD request. Use random image if it fails.**
+      let imageUrl = generatedImageUrl;
+      try {
+        const headRes = await fetch.default(generatedImageUrl, { method: 'HEAD' });
+        if (!headRes.ok) {
+          throw new Error('Image not found');
+        }
+      } catch (err) {
+        console.log(`Image not found at ${generatedImageUrl}, using random fallback.`);
+        imageUrl = getRandomImageUrl();
+      }
 
       // If all good, push a cleaned-up object
       articles.push({
         title: articleData.article_title,
         summary: articleData.article_text,
         link: articleData.article_link,
-        image: getRandomImageUrl(), // or your logic
+        // image: getRandomImageUrl(), // or your logic
+        image: imageUrl,
         sourceName: src.name,
       });
     } catch (err) {
@@ -176,6 +168,7 @@ async function sendNewsletter(uid) {
   console.log(`✅ Newsletter sent successfully to ${firstName} (${email})!`);
 }
 
+// to try out, run: node src/lib/newsletter/sendNewsletter.js
 // If you run this file directly with `node`, call sendNewsletter()
 if (require.main === module) {
   const testUID = "P3yrTbexu3fQqcNJDdBsxktQ8ev1";
