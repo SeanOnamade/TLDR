@@ -40,6 +40,7 @@ Focus Feed is a full-stack web application that curates news content for users, 
 - **Database**: Firestore (Firebase)
 - **Email**: [Resend](https://resend.com/) for transactional emails
 - **Hosting**: Example hosting on [Railway.app](https://railway.app/) or other Node-friendly platforms
+- **Web Scraping API**: Backend for article scraping and summarization [API](https://github.com/aidanjinn/newsAPI)
 
 ---
 
