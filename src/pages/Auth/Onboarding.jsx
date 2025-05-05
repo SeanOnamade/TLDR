@@ -36,6 +36,7 @@ const Onboarding = () => {
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [selectedSources, setSelectedSources] = useState([]);
   const [language, setLanguage] = useState("English"); // Default to English
+  const [address, setAddress] = useState(""); // Add address state
   const navigate = useNavigate();
 
   const toggleSelection = (item, selection, setSelection) => {
@@ -72,6 +73,7 @@ const Onboarding = () => {
           language: language.toLowerCase(), // Save language in lowercase to match API requirements
           onboarded: true,
           subscribed: true,
+          address, // Add address to user data
         },
         { merge: true }
       );
@@ -121,6 +123,23 @@ const Onboarding = () => {
               onChange={(e) => setLastName(e.target.value)}
               autoComplete="family-name"
               placeholder="Last name"
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-300 focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label
+              htmlFor="address"
+              className="block text-sm font-semibold text-gray-700 mb-1"
+            >
+              Developer Address
+            </label>
+            <input
+              id="address"
+              name="address"
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Enter your developer address (e.g., X456nA19335)"
               className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-300 focus:outline-none focus:border-indigo-500"
             />
           </div>

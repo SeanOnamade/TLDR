@@ -41,6 +41,7 @@ function Preferences() {
   const [newPassword, setNewPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [subscribed, setSubscribed] = useState(true);
+  const [address, setAddress] = useState("");
 
   const user = auth.currentUser; // Get authenticated user
   const [initialValues, setInitialValues] = useState({
@@ -51,6 +52,7 @@ function Preferences() {
     topics: [],
     sources: [],
     subscription: true,
+    address: "",
   });
 
   useEffect(() => {
@@ -69,6 +71,7 @@ function Preferences() {
             topics: userData.topics || [],
             sources: userData.sources || [],
             subscription: userData.subscription || true,
+            address: userData.address || "",
           });
           setFirstName(userData.firstName || "");
           setLastName(userData.lastName || "");
@@ -76,6 +79,7 @@ function Preferences() {
           setTopics(userData.topics || []);
           setSources(userData.sources || []);
           setSubscribed(userData.subscribed ?? true);
+          setAddress(userData.address || "");
         }
       };
       fetchUserData();
@@ -128,6 +132,7 @@ function Preferences() {
             sources,
             subscribed,
             onboarded: true,
+            address,
           },
           { merge: true }
         );
@@ -227,6 +232,26 @@ function Preferences() {
                 autoComplete="email"
                 value={email}
                 disabled
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+              />
+            </div>
+          </div>
+
+          <div className="sm:col-span-3">
+            <label
+              htmlFor="address"
+              className={`block text-sm/6 font-medium ${isDark ? "text-white" : "text-gray-900"}`}
+            >
+              Developer Address
+            </label>
+            <div className="mt-2">
+              <input
+                id="address"
+                name="address"
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter your developer address (e.g., X456nA19335)"
                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
               />
             </div>

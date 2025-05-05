@@ -21,6 +21,14 @@ const CONNECT_PORT = 7050;
 
 app.use(bodyParser.json());
 
+/*
+ * @breif: this is the route that handles a subprocess call to the control.py function, it takes
+            in a request which is a POST request from the front end, with a valid JSON that has an articles text
+            which then gets processed via a model class class in the control.py subprocess, and returns 
+ * 
+ * @returns: extracted sentences from the text highlighting key points
+ */
+
 app.post('/process', (req, res) => {
     const text = req.body.article_text;
     if (!text || typeof text !== 'string') {
