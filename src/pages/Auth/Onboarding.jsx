@@ -1,9 +1,10 @@
 // src/pages/Onboarding.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { topicsOptions, sourceOptions } from "@/constants/preferences";
+import { uniqueID } from "@/lib/DevIdGen";
 
 // Add language options as shown in Preferences.jsx
 const languageOptions = [
@@ -37,8 +38,23 @@ const Onboarding = () => {
   const [selectedSources, setSelectedSources] = useState([]);
   const [language, setLanguage] = useState("English"); // Default to English
   const [address, setAddress] = useState(""); // Add address state
+  const [DevID, setDevID] = useState("");
   const navigate = useNavigate();
 
+  /**
+   * @breif: This useEffect is waiting for the creation of the users devID state
+   *          and then assigning it a unique value, which gets stored in the user collections
+   */
+
+  useEffect (() =>
+  {
+    const genDevID = async () => 
+    {
+      const ID = await uniqueID();
+      setDevID(ID)
+    };
+    genDevID();
+  }, []);
   const toggleSelection = (item, selection, setSelection) => {
     // topics are simple strings; sources are objects
     if (typeof item === "string") {
@@ -74,6 +90,7 @@ const Onboarding = () => {
           onboarded: true,
           subscribed: true,
           address, // Add address to user data
+          DevID
         },
         { merge: true }
       );
